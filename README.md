@@ -17,4 +17,4 @@ Commands:
  - @version   | Information about the scanner.
 
  Todo:
-- Fix up the @scan commands.
+- Fix up the @scan and @stop commands.
