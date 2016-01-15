@@ -22,7 +22,7 @@ Commands:
 
 
  ToDo:
-- Fix up the @scan commands.
+- Fix up the @scan and @stop commands.
 """
 
 import datetime
