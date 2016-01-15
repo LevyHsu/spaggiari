@@ -40,7 +40,7 @@ import time
 import urllib2
 
 # IRC Config
-server   = 'irc.supernets.org'
+server   = 'irc.server.org'
 port     = 6697
 use_ssl  = True
 password = None
@@ -48,7 +48,7 @@ channel  = '#dev'
 key      = None
 
 # Other Config
-admin_host   = 'super.nets'
+admin_host   = 'admin.host'
 control_char = '@'
 throttle     = 20
 
