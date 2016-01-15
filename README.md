@@ -18,3 +18,4 @@ Commands:
 
  Todo:
 - Fix up the @scan and @stop commands.
+- Add bad ip range blocklist.
