@@ -1,5 +1,5 @@
 # spaggiari
-An SSH scanner / bruteforcer controlled via IRC.
+A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Chat (IRC) protocol.
 
 'sans armes, ni haine, ni violence'
 
@@ -16,7 +16,5 @@ Commands:
  - @stop      | Stop all current running scans.
  - @version   | Information about the scanner.
 
-
- ToDo:
-
+ Todo:
 - Fix up the @scan commands.
