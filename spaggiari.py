@@ -342,7 +342,7 @@ class IRC(object):
                             self.scanning = False
                             self.action(chan, 'Stopped all running scans.')
                     elif cmd == 'version':
-                        self.sendmsg(chan, bold + 'Spaggiari Scanner - Version 1.0.0 - Developed by acidvegas in Python 2.7 - https://github.com/acidvegas/spaggiari/')    
+                        self.sendmsg(chan, bold + 'Spaggiari Scanner - Version 1.0b - Developed by acidvegas in Python 2.7 - https://github.com/acidvegas/spaggiari/')    
             elif len(args) >= 3:
                 if cmd == 'scan' and args[1] == self.id:
                     if not self.scanning:
