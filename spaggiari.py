@@ -44,7 +44,7 @@ server   = 'irc.server.com'
 port     = 6697
 use_ssl  = True
 password = None
-channel  = '#dev'
+channel  = '#scan'
 key      = None
 
 # Other Config
