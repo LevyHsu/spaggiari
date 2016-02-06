@@ -75,12 +75,11 @@ combos = [
     'cisco:cisco',
     'oracle:oracle',
     'pi:raspberry',
-    'admin:aerohive',
     'default:defaultpassword',
 ]
 
 deep_combos = {
-    'admin'     : ['kn1TG7psLu','TANDBERG'],
+    'admin'     : ['aerohive','kn1TG7psLu','TANDBERG'],
     'alien'     : 'alien',
     'device'    : 'apc',
     'dpn'       : 'changeme',
