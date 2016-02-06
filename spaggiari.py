@@ -23,7 +23,8 @@ Commands:
 
  Todo:
 - Fix up the @scan and @stop commands.
-- Add bad ip range blocklist.
+- Add more to bad ip range.
+- Implement deep scan with the deep_combos
 """
 
 import datetime
