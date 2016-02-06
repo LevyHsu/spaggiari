@@ -25,6 +25,7 @@ Commands:
 - Fix up the @scan and @stop commands.
 - Add more to bad ip range.
 - Implement deep scan with the deep_combos
+- Add telnet scanning support.
 """
 
 import datetime
