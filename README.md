@@ -16,6 +16,6 @@ Commands:
  - @stop      | Stop all current running scans.
  - @version   | Information about the scanner.
 
- Todo:
+Todo:
 - Fix up the @scan and @stop commands.
 - Add bad ip range blocklist.
