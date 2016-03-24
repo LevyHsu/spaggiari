@@ -22,10 +22,9 @@ Commands:
  - @version   | Information about the scanner.
 
 Todo:
-- Fix up the @scan and @stop commands.
-- Add more to bad ip range.
-- Implement deep scan with the deep_combos
-- Add telnet scanning support.
+- Fix up the @stop command.
+- Create a more accurate spooky list.
+- Add telnet/ftp scanning support.
 """
 
 import datetime
