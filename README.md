@@ -17,5 +17,6 @@ Commands:
  - @version   | Information about the scanner.
 
 Todo:
-- Fix up the @scan and @stop commands.
-- Add bad ip range blocklist.
+- Fix up the @stop command.
+- Create a more accurate spooky list.
+- Add telnet/ftp scanning support.
