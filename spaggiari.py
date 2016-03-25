@@ -250,7 +250,7 @@ class ssh_bruteforce(threading.Thread):
             for user in combos.keys():
                 if SpaggiariBot.stop_scan:
                     break
-                passwd = combos[item]
+                passwd = combos[user]
                 if type(passwd) == list:
                     for item in passwd:
                         try:
