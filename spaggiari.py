@@ -60,11 +60,10 @@ throttle     = 20
 
 # SSH Login Attempts
 combos = {
-    'root'      : ['root','toor','admin','changeme','pass','password'],
+    'root'      : ['root','toor','admin','changeme','pass','password','1234','12345','123456'],
     'admin'     : ['1234','12345','123456','4321','9999','abc123','admin','changeme','admin123','password'],
     'cisco'     : 'cisco',
     'pi'        : 'raspberry',
-    'default'   : 'defaultpassword'
 }
 
 deep_combos = {
@@ -84,6 +83,7 @@ deep_combos = {
     'ubnt'      : 'ubnt',
     'user'      : ['acme','live'],
     'vagrant'   : 'vagrant',
+    'virl'      : 'VIRL',
     'vyos'      : 'vyos',
 }
 
