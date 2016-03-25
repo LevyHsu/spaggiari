@@ -33,6 +33,7 @@ Bugs:
 Todo:
 - Create a more accurate and comprehensive spooky / dns list.
 - Implement scanning for telnet and ftp.
+- Make use of 'deep_combos' after no successful logins.
 """
 
 import datetime
