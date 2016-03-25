@@ -10,7 +10,7 @@ A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Cha
 ###### Commands
 | Command | Description |
 | --- | --- |
-| @help  A list of commands, syntax, and descriptions. |
+| @help | A list of commands, syntax, and descriptions. |
 | @info | Information about the server. |
 | @kill | Kill the bot. |
 | @scan | Scan every in IP address in the range arguments. |
