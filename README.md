@@ -18,7 +18,7 @@ A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Cha
 | @stop | Stop all current running scans. |
 | @version | Information about the scanner. |
 
-Note: Commands require either 'all' or the bots unique id after it.
+*Note:* Commands require either 'all' or the bots unique id after it.
 
 If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
 
