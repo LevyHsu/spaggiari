@@ -17,7 +17,9 @@ Commands:
  - @version   | Information about the scanner.
 
 Note: Commands require either 'all' or the bots unique id after it.
+
 If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
+
 You can issue a command with '@info all', or '@info tnnxu'.
  
  Todo:
