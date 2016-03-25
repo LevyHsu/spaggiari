@@ -1,7 +1,7 @@
 # spaggiari
 A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Chat (IRC) protocol.
 
-'sans armes, ni haine, ni violence'
+*'sans armes, ni haine, ni violence'*
 
 ###### Requirments
  - [Python 2.7](http://www.python.org/)
