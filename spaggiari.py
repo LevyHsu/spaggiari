@@ -34,10 +34,9 @@ Todo:
 - Create a more accurate and comprehensive spooky / dns list.
 - Implement scanning for telnet and ftp.
 - Make use of 'deep_combos' after no successful logins.
-
-Legal Disclaimer:
-It is the end user's responsibility to obey all applicable local, state and federal laws.
-Developers assume no liability and are not responsible for any misuse or damage caused by this program.
+- Use pyinstaller to create a single executable.
+- Give up after x amount of timeouts.
+- Slow random scans when idle.
 """
 
 import datetime
