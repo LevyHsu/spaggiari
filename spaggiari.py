@@ -316,21 +316,24 @@ def ssh_connect(hostname, username, password):
 
 # IRC Bot Object
 class IRC(threading.Thread):
-    def __init__(self, server, port, use_ssl, password, channel, key, nick, username, realname):
+    def __init__(self, server, port, use_ssl, password, channel, key):
         self.server    = server
         self.port      = port
         self.use_ssl   = use_ssl
         self.password  = password
         self.channel   = channel
         self.key       = key
-        self.nickname  = nickname
-        self.username  = username
-        self.realname  = realname
+        self.nickname  = 'spag-xxxxx'
         self.id        = nick[-5:]
         self.sock      = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.scanning  = False
         self.stop_scan = False
         threading.Thread.__init__(self)
+
+    def run(self):
+        self.nickname = 'spag-' + functions.random_str(5)
+        if check_root() : self.nickname = 'r' + self.nickname
+        self.connect()
 
     def action(self, chan, msg):
         self.sendmsg(chan, '\x01ACTION %s\x01' % msg)
@@ -341,7 +344,7 @@ class IRC(threading.Thread):
             if self.use_ssl: self.sock = ssl.wrap_socket(self.sock)
             self.sock.connect((self.server, self.port))
             if self.password : self.raw('PASS ' + self.password)
-            self.raw('USER %s 0 * :%s' % (self.username, self.realname))
+            self.raw('USER %s 0 * :%s' % (random_str(5), random_str(5)))
             self.nick(self.nickname)
             self.listen()
         except Exception as ex:
@@ -510,9 +513,8 @@ try:
     import paramiko
 except ImportError:
     error_exit('Failed to import the Paramiko library! (http://www.paramiko.org/)')
-paramiko.util.log_to_file('/dev/null')
-nickname = 'spag-' + random_str(5)
-if check_root(): nickname = 'r' + nickname
-SpaggiariBot = IRC(server, port, use_ssl, password, channel, key, nickname, random_str(5), 'Spaggiari Scanner IRC Bot')
+else:
+    paramiko.util.log_to_file('/dev/null')
+SpaggiariBot = IRC(server, port, use_ssl, password, channel, key)
 SpaggiariBot.start()
 keep_alive()
