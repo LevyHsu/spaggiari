@@ -324,7 +324,7 @@ class IRC(threading.Thread):
         self.channel   = channel
         self.key       = key
         self.nickname  = 'spag-xxxxx'
-        self.id        = nick[-5:]
+        self.id        = nickname[-5:]
         self.sock      = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.scanning  = False
         self.stop_scan = False
