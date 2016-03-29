@@ -34,8 +34,5 @@ You can issue a command with `@info all`, or `@info tnnxu`.
 - Implement scanning for telnet and ftp.
 - Make use of `deep_combos` after no successful logins.
 - Use pyinstaller to create a single executable.
-
-###### Legal Disclaimer
-It is the end user's responsibility to obey all applicable local, state and federal laws.
-
-Developers assume no liability and are not responsible for any misuse or damage caused by this program.
+- Give up after x amount of timeouts.
+- Slow random scans when idle.
