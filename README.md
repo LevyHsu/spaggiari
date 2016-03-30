@@ -30,7 +30,7 @@ You can issue a command with `@info all`, or `@info tnnxu`.
 - The `@stop` command is not perfect and doesn't fully stop scans in progress.
  
 ###### Todo
-- Create a more accurate and comprehensive spooky / dns list.
+- Create a more accurate and comprehensive spooky list.
 - Implement scanning for telnet and ftp.
 - Make use of `deep_combos` after no successful logins.
 - Use pyinstaller to create a single executable.
