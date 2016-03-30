@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Spaggiari Scanner - Version 1.0b
+# Spaggiari Scanner
 # A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Chat (IRC) protocol.
 # Developed by acidvegas in Python 2.7
 # https://github.com/acidvegas/spaggiari/
