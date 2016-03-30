@@ -13,17 +13,17 @@ Requirments:
  - Paramiko Library (http://www.paramiko.org/)
  
 Commands:
- - @help <id>                           | A list of commands, syntax, and descriptions.
- - @info <id/all>                       | Information about the server.
- - @kill <id/all>                       | Kill the bot.
- - @scan <id> <start_range> <end_range> | Example: @scan tnnxu 10.13.56.113 10.29.23.200 (Scans every IP from 10.13.56.113 to 10.29.23.200)
- - @scan <id> a <range>                 | Example: @scan tnnxu 107                       (Scans every IP from 107.0.0.0    to 107.255.255.255)
- - @scan <id> b <range>                 | Example: @scan tnnxu 107.13                    (Scans every IP from 107.13.0.0   to 107.13.255.255
- - @scan <id> c <range>                 | Example: @scan tnnxu 107.13.201                (Scans every IP from 107.13.201.0 to 107.13.201.255)
- - @scan <id> <a/b/c> random            | Example: @scan tnnxu b random)                 (Scans every IP from ?.?.0.0 to ?.?.255.255)
- - @status <id/all>                     | Check the scanning status on the bot.
- - @stop   <id/all>                     | Stop all current running scans.
- - @version <id/all>                    | Information about the scanner.
+ - @help    <id>                           | A list of commands, syntax, and descriptions.
+ - @info    <id/all>                       | Information about the server.
+ - @kill    <id/all>                       | Kill the bot.
+ - @scan    <id> <start_range> <end_range> | Example: @scan tnnxu 10.13.56.113 10.29.23.200 (Scans every IP from 10.13.56.113 to 10.29.23.200)
+ - @scan    <id> a <range>                 | Example: @scan tnnxu 107                       (Scans every IP from 107.0.0.0    to 107.255.255.255)
+ - @scan    <id> b <range>                 | Example: @scan tnnxu 107.13                    (Scans every IP from 107.13.0.0   to 107.13.255.255
+ - @scan    <id> c <range>                 | Example: @scan tnnxu 107.13.201                (Scans every IP from 107.13.201.0 to 107.13.201.255)
+ - @scan    <id> <a/b/c> random            | Example: @scan tnnxu b random)                 (Scans every IP from ?.?.0.0 to ?.?.255.255)
+ - @status  <id/all>                       | Check the scanning status on the bot.
+ - @stop    <id/all>                       | Stop all current running scans.
+ - @version <id/all>                      | Information about the scanner.
  
 Note: Commands require either 'all' or the bots unique id after it.
 If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
