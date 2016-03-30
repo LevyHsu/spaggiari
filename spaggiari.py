@@ -13,7 +13,6 @@ Requirments:
  - Paramiko Library (http://www.paramiko.org/)
  
 Commands:
- - @help    <id>                | A list of commands, syntax, and descriptions.
  - @info    <id/all>            | Information about the server.
  - @kill    <id/all>            | Kill the bot.
  - @scan    <id> <start> <end>  | Example: @scan tnnxu 10.13.56.113 10.29.23.200 (Scans from 10.13.56.113 to 10.29.23.200)
