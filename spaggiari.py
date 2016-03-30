@@ -23,7 +23,7 @@ Commands:
  - @scan    <id> <a/b/c> random            | Example: @scan tnnxu b random)                 (Scans every IP from ?.?.0.0 to ?.?.255.255)
  - @status  <id/all>                       | Check the scanning status on the bot.
  - @stop    <id/all>                       | Stop all current running scans.
- - @version <id/all>                      | Information about the scanner.
+ - @version <id/all>                       | Information about the scanner.
  
 Note: Commands require either 'all' or the bots unique id after it.
 If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
