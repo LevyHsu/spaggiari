@@ -414,20 +414,12 @@ class IRC(threading.Thread):
             args = msg.split()
             cmd  = args[0].replace(control_char, '', 1)
             if len(args) == 2:
-                if cmd == 'help' and args[1] == self.id:
-                    self.sendmsg(chan, color('@help',    yellow) + reset + ' - A list of commands and descriptions.')
-                    self.sendmsg(chan, color('@info',    yellow) + reset + ' - Information about the server.')
-                    self.sendmsg(chan, color('@kill',    yellow) + reset + ' - Kill the bot.')
-                    self.sendmsg(chan, color('@scan',    yellow) + reset + ' - Scan every in IP address in the range arguments.')
-                    self.sendmsg(chan, color('@status',  yellow) + reset + ' - Check the scanning status on the bot.')
-                    self.sendmsg(chan, color('@stop',    yellow) + reset + ' - Stop all current running scans.')
-                    self.sendmsg(chan, color('@version', yellow) + reset + ' - Information about the scanner.')
                 if args[1] == 'all' or args[1] == self.id:
                     if cmd == 'info':
                         self.sendmsg(chan, '%s@%s (%s) | %s %s | %s' % (get_username(), get_hostname(), get_ip(), get_dist(), get_arch(), get_kernel()))
                     elif cmd == 'kill':
                         self.stop_scan = True
-                        self.scanning = False
+                        self.scanning  = False
                         self.quit('KILLED')
                         sys.exit()
                     elif cmd == 'status':
