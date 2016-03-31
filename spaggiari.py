@@ -307,6 +307,7 @@ class scan(threading.Thread):
         while threading.activeCount() >= 3:
             time.sleep(1)
         SpaggiariBot.scanning = False
+        SpaggiariBot.sendmsg(chan, '[%s] - Scan has completed.' % (color('#', blue)))
 
 class ssh_bruteforce(threading.Thread):
     def __init__(self, host):
@@ -449,8 +450,6 @@ class IRC(threading.Thread):
                                 time.sleep(1)
                             self.action(chan, 'Stopped all running scans.')
                             self.scanning = False
-                    elif cmd == 'version':
-                        self.sendmsg(chan, bold + 'Spaggiari Scanner - Version 1.0b - Developed by acidvegas in Python 2.7 - https://github.com/acidvegas/spaggiari/')    
             elif len(args) >= 3:
                 if cmd == 'scan' and args[1] == self.id:
                     if not self.scanning:
@@ -471,7 +470,6 @@ class IRC(threading.Thread):
                                     self.sendmsg(chan, '[%s] - Scanning %s IP addresses in range...' % (color('#', blue), '{:,}'.format(len(targets))))
                                     self.scanning = True
                                     scan(targets).start()
-                                    self.sendmsg(chan, '[%s] - Scan has completed. %s' % (color('#', blue), color('(Threads still may be running.)', grey)))
                                 else:
                                     self.error(chan, 'Spooky IP address range.')
                             else:
