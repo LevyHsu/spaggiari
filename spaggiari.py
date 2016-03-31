@@ -45,7 +45,6 @@ You can issue a command with '@info all', or '@info tnnxu'.
 
 Bugs:
 - Using combos.keys() is in ABC order and not testing 'root' first.
-- Long range ip scans may consume memory and crash.
 - The @stop command is not perfect and doesn't fully stop scans in progress.
  
 Todo:
