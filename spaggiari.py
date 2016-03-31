@@ -33,9 +33,9 @@ Requirments:
 Commands:
  - @info    <id/all>           | Information about the server.
  - @kill    <id/all>           | Kill the bot.
- - @scan    <id> b <range>     | Example: @scan tnnxu 107.13     (Scans from 107.13.0.0   to 107.13.255.255
- - @scan    <id> c <range>     | Example: @scan tnnxu 107.13.201 (Scans from 107.13.201.0 to 107.13.201.255)
- - @scan    <id> <b/c> random  | Example: @scan tnnxu b random   (Scans from ?.?.0.0      to ?.?.255.255)
+ - @scan    <id> b <range>     | Example: @scan tnnxu b 107.13     (Scans from 107.13.0.0   to 107.13.255.255
+ - @scan    <id> c <range>     | Example: @scan tnnxu c 107.13.201 (Scans from 107.13.201.0 to 107.13.201.255)
+ - @scan    <id> <b/c> random  | Example: @scan tnnxu b random     (Scans from ?.?.0.0      to ?.?.255.255)
  - @status  <id/all>           | Check the scanning status on the bot.
  - @stop    <id/all>           | Stop all current running scans.
  - @version <id/all>           | Information about the scanner.
