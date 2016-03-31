@@ -318,7 +318,7 @@ class ssh_bruteforce(threading.Thread):
                 if SpaggiariBot.stop_scan:
                     break
                 password = combos[user]
-                if type(password) == list:
+                if type(password) == tuple:
                     for item in password:
                         ssh_connect(self.host, user, item)
                         time.sleep(throttle)
