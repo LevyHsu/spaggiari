@@ -26,7 +26,6 @@ If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
 You can issue a command with `@info all`, or `@info tnnxu`.
 
 ###### Bugs
-- Using `combos.keys()` is in ABC order and not testing 'root' first.
 - The `@stop` command is not perfect and doesn't fully stop scans in progress.
  
 ###### Todo
