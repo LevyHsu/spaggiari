@@ -447,7 +447,8 @@ class IRC(threading.Thread):
                             while threading.activeCount() >= 3:
                                 time.sleep(1)
                             self.action(chan, 'Stopped all running scans.')
-                            self.scanning = False
+                            self.scanning  = False
+                            self.stop_scan = False
             elif len(args) >= 3:
                 if cmd == 'scan' and args[1] == self.id:
                     if not self.scanning:
