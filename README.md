@@ -18,7 +18,6 @@ A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Cha
 | @scan \<id> \<b/c> random | Example: `@scan tnnxu b random` *(Scans from ?.?.0.0 to ?.?.255.255)* |
 | @status \<id/all> | Check the scanning status on the bot. |
 | @stop \<id/all> | Stop all current running scans. |
-| @version \<id/all> | Information about the scanner. |
 
 *Note:* Commands require either 'all' or the bots unique id after it.
 
@@ -28,7 +27,6 @@ You can issue a command with `@info all`, or `@info tnnxu`.
 
 ###### Bugs
 - Using `combos.keys()` is in ABC order and not testing 'root' first.
-- Long range ip scans may consume memory and crash.
 - The `@stop` command is not perfect and doesn't fully stop scans in progress.
  
 ###### Todo
