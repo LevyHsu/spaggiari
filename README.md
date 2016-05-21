@@ -24,14 +24,10 @@ A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Cha
 If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
 
 You can issue a command with `@info all`, or `@info tnnxu`.
-
-###### Bugs
-- The `@stop` command is not perfect and doesn't fully stop scans in progress.
  
 ###### Todo
 - Create a more accurate and comprehensive spooky list.
-- Implement scanning for telnet and ftp.
-- Make use of `deep_combos` after no successful logins.
+- Implement scanning for other services (telnet, ftp, mysql, etc).
+- Allow scanning a specific host using deep_combos.
 - Use pyinstaller to create a single executable.
-- Give up after x amount of timeouts.
 - Slow random scans when idle.
