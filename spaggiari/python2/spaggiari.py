@@ -27,8 +27,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 'sans armes, ni haine, ni violence'
 
 Requirments:
- - Python 2.7       (http://www.python.org/)
- - Paramiko Library (http://www.paramiko.org/)
+ - Python 2.7 or 3.5 (http://www.python.org/)
+ - Paramiko Library  (http://www.paramiko.org/)
  
 Commands:
  - @info    <id/all>           | Information about the server.
