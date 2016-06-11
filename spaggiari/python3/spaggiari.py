@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Spaggiari Scanner
 # A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Chat (IRC) protocol.
-# Developed by acidvegas in Python 3.5
+# Developed by acidvegas in Python 3
 # https://github.com/acidvegas/spaggiari/
 # spaggiari.py
 
@@ -27,7 +27,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 'sans armes, ni haine, ni violence'
 
 Requirments:
- - Python 2.7 or 3.5 (http://www.python.org/)
  - Paramiko Library  (http://www.paramiko.org/)
  
 Commands:
@@ -146,8 +145,8 @@ def check_root():
     else:
         return False
 
-def check_version(major, minor):
-    if sys.version_info.major == major and sys.version_info.minor == minor:
+def check_version(major):
+    if sys.version_info.major == major:
         return True
     else:
         return False
@@ -544,8 +543,8 @@ print('#' + 'Developed by acidvegas in Python 3.5'.center(54) + '#')
 print('#' + 'https://github.com/acidvegas/spaggiari/'.center(54) + '#')
 print('#' + ''.center(54) + '#')
 print(''.rjust(56, '#'))
-if not check_version(3,5):
-    error_exit('Spaggiari Scanner requires Python version 3.5 to run!')
+if not check_version(3):
+    error_exit('Spaggiari Scanner requires Python 3 to run!')
 if get_windows():
     error_exit('Spaggiari Scanner must be ran on a Linux based OS!')
 try:
