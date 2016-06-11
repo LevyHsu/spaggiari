@@ -4,7 +4,6 @@ A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Cha
 *'sans armes, ni haine, ni violence'*
 
 ###### Requirments
- - [Python 2.7 or 3.5](http://www.python.org/)
  - [Paramiko Library](http://www.paramiko.org/)
  
 ###### Commands
