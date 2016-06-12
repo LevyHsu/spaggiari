@@ -61,7 +61,7 @@ import ssl
 import sys
 import threading
 import time
-import urllib2
+import urllib.request
 from collections import OrderedDict
 
 # IRC Config (EDIT)
@@ -145,8 +145,8 @@ def check_root():
     else:
         return False
 
-def check_version(major):
-    if sys.version_info.major == major:
+def check_version(major, minor):
+    if sys.version_info.major == major and sys.version_info.minor == minor:
         return True
     else:
         return False
@@ -238,8 +238,16 @@ def get_hostname():
     return socket.gethostname()
 
 def get_ip():
-    try    : return re.findall(r'[0-9]+(?:\.[0-9]+){3}', urllib2.urlopen('http://checkip.dyndns.com/').read())[0]
-    except : return 'Unknown IP Address'
+    try:
+        source = urllib.request.urlopen('http://checkip.dyndns.com/')
+        charset = source.headers.get_content_charset()
+        if charset:
+            source = source.read().decode(charset)
+        else:
+            source = source.read()
+        return re.findall(r'[0-9]+(?:\.[0-9]+){3}', source)[0]
+    except:
+        return 'Unknown IP Address'
 
 def get_kernel():
     return platform.release()
@@ -539,12 +547,12 @@ clear()
 print(''.rjust(56, '#'))
 print('#' + ''.center(54) + '#')
 print('#' + 'Spaggiari Scanner'.center(54) + '#')
-print('#' + 'Developed by acidvegas in Python 3.5'.center(54) + '#')
+print('#' + 'Developed by acidvegas in Python 2 & 3'.center(54) + '#')
 print('#' + 'https://github.com/acidvegas/spaggiari/'.center(54) + '#')
 print('#' + ''.center(54) + '#')
 print(''.rjust(56, '#'))
-if not check_version(3):
-    error_exit('Spaggiari Scanner requires Python 3 to run!')
+if not check_version(3,5):
+    error_exit('Spaggiari Scanner requires Python version 3 to run!')
 if get_windows():
     error_exit('Spaggiari Scanner must be ran on a Linux based OS!')
 try:
