@@ -145,8 +145,8 @@ def check_root():
     else:
         return False
 
-def check_version(major, minor):
-    if sys.version_info.major == major and sys.version_info.minor == minor:
+def check_version(major):
+    if sys.version_info.major == major:
         return True
     else:
         return False
@@ -551,7 +551,7 @@ print('#' + 'Developed by acidvegas in Python 2 & 3'.center(54) + '#')
 print('#' + 'https://github.com/acidvegas/spaggiari/'.center(54) + '#')
 print('#' + ''.center(54) + '#')
 print(''.rjust(56, '#'))
-if not check_version(3,5):
+if not check_version(3):
     error_exit('Spaggiari Scanner requires Python version 3 to run!')
 if get_windows():
     error_exit('Spaggiari Scanner must be ran on a Linux based OS!')
