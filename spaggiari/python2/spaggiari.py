@@ -204,20 +204,12 @@ def check_port(ip, port):
         sock.close()
 
 def check_range(targets):
-    breaker = False
     found   = False
     for ip in targets:
-        if breaker : break
-        for spooky_range in spooky:
-            if ip.startswith(spooky_range + '.'):
-                breaker = True
-                found   = True
-                break
-        if breaker : break
-        for dns_range in reserved:
-            if ip.startswith(dns_range + '.'):
-                breaker = True
-                found   = True
+        if found : break
+        for bad_range in spooky + reserved:
+            if ip.startswith(bad_range + '.'):
+                found = True
                 break
     return found
 
