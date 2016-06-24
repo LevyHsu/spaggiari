@@ -1,7 +1,7 @@
 # spaggiari
-A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Chat (IRC) protocol.
+A Secure Shell (SSH) scanner / bruteforcer that can be controlled via the Internet Relay Chat (IRC) protocol.
 
-####*'sans armes, ni haine, ni violence'*
+#####*'sans armes, ni haine, ni violence'*
 
 ###### Requirments
  - [Paramiko Library](http://www.paramiko.org/)
@@ -37,11 +37,11 @@ Deep scanning uses a larger list of combos to bruteforce with.
 ###### IRC Commands
 | Command | Description |
 | --- | --- |
-| @help \<id> | A list of commands, syntax, and descriptions. |
 | @info \<id/all> | Information about the server. |
 | @kill \<id/all> | Kill the bot. |
-| @scan \<id> \<class> \<range> | Scan a range of ip addresses. |
-| @scan \<id> \<class> random | Scan a random range of ip addresses. |
+| @random \<id/all> | Scan random ip addresses. |
+| @range \<id> \<class> \<range> | Scan a range of ip addresses. |
+| @range \<id> \<class> random | Scan a random range of ip addresses. |
 | @status \<id/all> | Check the scanning status on the bot. |
 | @stop \<id/all> | Stop all current running scans. |
 
@@ -51,14 +51,20 @@ If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
 
 You can issue a command with `@info all`, or `@info tnnxu`.
 
-###### Command Information
 The <class> can be b or c. The <range> is the ip address range prefix to scan.
 
-**Example:** `spaggiari -r b 192.168`   *(Scans the range 192.168.0.0-192.168.255.255)*
-
-**Example:** `spaggiari -r c 192.168.1` *(Scans the range 192.168.1.0-192.168.1.255)*
+**CLI Examples:**
+    * spaggiari.py -r b 192.168   (Scans the range 192.168.0.0-192.168.255.255)
+    * spaggiari.py -r c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
+    * spaggiari.py -r b random    (Scans the range ?.?.0.0-?.?.255.255)
+    * spaggiari.py -r c random    (Scans the range ?.?.?.0-?.?./.255)
+    
+**IRC Examples:**
+    * @range tnnxu b 192.168   (Scans the range 192.168.0.0-192.168.255.255)
+    * @range tnnxu c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
+    * @range tnnxu b random    (Scans the range ?.?.0.0-?.?.255.255)
+    * @range tnnxu c random    (Scans the range ?.?.?.0-?.?./.255)
  
 ###### Todo
 - Create a more accurate and comprehensive spooky list.
-- Implement scanning for other services (telnet, ftp, mysql, etc).
 - Use pyinstaller to create a single executable.
