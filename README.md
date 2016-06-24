@@ -3,16 +3,16 @@ A Secure Shell (SSH) scanner / bruteforcer controlled via the Internet Relay Cha
 
 ####*'sans armes, ni haine, ni violence'*
 
-##### Requirments
+###### Requirments
  - [Paramiko Library](http://www.paramiko.org/)
  
-##### Information
+###### Information
 Spaggiari scanner comes in 2 versions. A CLI version and an IRC version.
 The CLI version can be used directly from the command line.
 The IRC version can be used to run the bot on many machines and control them from IRC.
 You must edit the config in the IRC version in order to have the bot connect.
 
-##### CLI Commands
+###### CLI Commands
 **Usage:** spaggiari.py [OPTIONS] [SCAN]
 
 | Option | Description |
@@ -31,10 +31,10 @@ You must edit the config in the IRC version in order to have the bot connect.
 
 Deep scanning uses a larger list of combos to bruteforce with.
 The <class> can be b or c. The <range> is the ip address range prefix to scan.
-Example: spaggiari -r b 192.168   (Scans the range 192.168.0.0-192.168.255.255)
-Example: spaggiari -r c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
+Example: `spaggiari -r b 192.168`   (Scans the range 192.168.0.0-192.168.255.255)
+Example: `spaggiari -r c 192.168.1` (Scans the range 192.168.1.0-192.168.1.255)
 
-##### IRC Commands
+###### IRC Commands
 | Command | Description |
 | --- | --- |
 | @help \<id> | A list of commands, syntax, and descriptions. |
@@ -52,7 +52,7 @@ If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
 
 You can issue a command with `@info all`, or `@info tnnxu`.
  
-##### Todo
+###### Todo
 - Create a more accurate and comprehensive spooky list.
 - Implement scanning for other services (telnet, ftp, mysql, etc).
 - Allow scanning a specific host using deep_combos.
