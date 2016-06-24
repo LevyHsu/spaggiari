@@ -54,16 +54,16 @@ You can issue a command with `@info all`, or `@info tnnxu`.
 The <class> can be b or c. The <range> is the ip address range prefix to scan.
 
 **CLI Examples:**
-* spaggiari.py -r b 192.168   (Scans the range 192.168.0.0-192.168.255.255)
-* spaggiari.py -r c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
-* spaggiari.py -r b random    (Scans the range ?.?.0.0-?.?.255.255)
-* spaggiari.py -r c random    (Scans the range ?.?.?.0-?.?./.255)
+* `spaggiari.py -r b 192.168`   *(Scans the range 192.168.0.0-192.168.255.255)*
+* `spaggiari.py -r c 192.168.1` *(Scans the range 192.168.1.0-192.168.1.255)*
+* `spaggiari.py -r b random`    *(Scans the range ?.?.0.0-?.?.255.255)*
+* `spaggiari.py -r c random`    *(Scans the range ?.?.?.0-?.?./.255)*
     
 **IRC Examples:**
-* @range tnnxu b 192.168   (Scans the range 192.168.0.0-192.168.255.255)
-* @range tnnxu c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
-* @range tnnxu b random    (Scans the range ?.?.0.0-?.?.255.255)
-* @range tnnxu c random    (Scans the range ?.?.?.0-?.?./.255)
+* `@range tnnxu b 192.168`   *(Scans the range 192.168.0.0-192.168.255.255)*
+* `@range tnnxu c 192.168.1` *(Scans the range 192.168.1.0-192.168.1.255)*
+* `@range tnnxu b random`    *(Scans the range ?.?.0.0-?.?.255.255)*
+* `@range tnnxu c random`    *(Scans the range ?.?.?.0-?.?./.255)*
  
 ###### Todo
 * Create a more accurate and comprehensive spooky list.
