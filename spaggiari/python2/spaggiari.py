@@ -31,12 +31,13 @@ Requirments:
  
 Usage: spaggiari.py [OPTIONS] [SCAN]
     OPTIONS
-        -d                 | enable deep scanning.
-        -o <path>          | save output from scan(s) to file.
+        -d                 | Enable deep scanning.
+        -o <path>          | Save output from scan(s) to file.
     SCAN
-        -l <path>          | scan a list of ip addresses from file.
-        -x                 | scan random ip addresses.
-        -r <class> <range> | scan a range of ip addresses.
+        -l <path>          | Scan a list of ip addresses from file.
+        -x                 | Scan random ip addresses.
+        -r <class> <range> | Scan a range of ip addresses.
+        -r <class> random  | scan a random range of ip addresses.
         -t <ip>            | scan a target ip address.
 
     Deep scanning uses a larger list of combos to bruteforce with.
