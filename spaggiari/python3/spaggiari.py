@@ -30,12 +30,14 @@ Requirments:
  - Paramiko Library (http://www.paramiko.org/)
  
 Usage: spaggiari.py [OPTIONS] [SCAN]
-    -d                 | option: enable deep scanning.
-    -o <path>          | option: save output from scan(s) to file.
-    -l <path>          | scan a list of ip addresses from file.
-    -x                 | scan random ip addresses.
-    -r <class> <range> | scan a range of ip addresses.
-    -t <ip>            | scan a target ip address.
+    OPTIONS
+        -d                 | enable deep scanning.
+        -o <path>          | save output from scan(s) to file.
+    SCAN
+        -l <path>          | scan a list of ip addresses from file.
+        -x                 | scan random ip addresses.
+        -r <class> <range> | scan a range of ip addresses.
+        -t <ip>            | scan a target ip address.
 
     Deep scanning uses a larger list of combos to bruteforce with.
     The <class> can be b or c. The <range> is the ip address range prefix to scan.
