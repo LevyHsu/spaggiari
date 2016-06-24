@@ -18,7 +18,8 @@ You must edit the config in the IRC version in order to have the bot connect.
 | --- | --- |
 | -d | option: enable deep scanning. |
 | -o \<path> | option: save output from scan(s) to file. |
-and
+
+**options:** spaggiari.py [OPTIONS] [SCAN]
 | Scan | Description |
 | --- | --- |
 | -l \<path> | scan a list of ip addresses from file. |
