@@ -40,10 +40,10 @@ Usage: spaggiari.py [OPTIONS] [SCAN]
         -r <class> random  | scan a random range of ip addresses.
         -t <ip>            | scan a target ip address.
 
-    Deep scanning uses a larger list of combos to bruteforce with.
-    The <class> can be b or c. The <range> is the ip address range prefix to scan.
-    Example: spaggiari.py -r b 192.168   (Scans the range 192.168.0.0-192.168.255.255)
-    Example: spaggiari.py -r c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
+Deep scanning uses a larger list of combos to bruteforce with.
+The <class> can be b or c. The <range> is the ip address range prefix to scan.
+Example: spaggiari.py -r b 192.168   (Scans the range 192.168.0.0-192.168.255.255)
+Example: spaggiari.py -r c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
 """
 
 import argparse
