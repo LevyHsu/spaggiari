@@ -38,12 +38,14 @@ Commands:
  - @status  <id/all>             | Check the scanning status on the bot.
  - @stop    <id/all>             | Stop all current running scans.
  
-Note: Commands require either 'all' or the bots unique id after it.
+Commands require either 'all' or the bots unique id after it.
 If the bot has a nick of 'spag-tnnxu', the id of that bot is 'tnnxu'.
 You can issue a command with '@info all', or '@info tnnxu'.
 The <class> can be b or c. The <range> is the ip address range prefix to scan.
-Example: @range tnnxu b 192.168   (Scans the range 192.168.0.0-192.168.255.255)
-Example: @range tnnxu c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
+
+Examples:
+    @range tnnxu b 192.168   (Scans the range 192.168.0.0-192.168.255.255)
+    @range tnnxu c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
 """
 
 import datetime
