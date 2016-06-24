@@ -362,7 +362,7 @@ class IRC(object):
     def event_message(self, nick, host, chan, msg):
         if (not nick.startswith('spag-') or not nick.startswith('rspag-')) and host == admin_host:
             args = msg.split()
-            cmd  = args[0].replace(control_char, '', 1)
+            cmd  = args[0].replace('@', '', 1)
             if len(args) == 2:
                 if args[1] == 'all' or args[1] == self.id:
                     if cmd == 'info':
