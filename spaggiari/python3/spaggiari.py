@@ -253,12 +253,8 @@ if args.output:
     logger.debug('Logging enabled.')
 if args.listscan:
     if os.path.isfile(args.listscan):
-        targets = []
         with open(args.listscan) as list_file:
-            lines = list_file.read().splitlines()
-            for line in [x for x in lines if x]:
-                if check_ip(line):
-                    targets.append(line)
+            targets = [x for x in list_file.read().splitlines() if x]
         if targets:
             if not check_range(targets):
                 logging.debug('Scanning %s IP addresses from list...', '{:,}'.format(len(targets)))
