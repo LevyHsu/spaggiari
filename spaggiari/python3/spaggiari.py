@@ -254,7 +254,7 @@ if args.output:
 if args.listscan:
     if os.path.isfile(args.listscan):
         with open(args.listscan) as list_file:
-            targets = [x for x in list_file.read().splitlines() if x]
+            targets = [x for x in list_file.read().splitlines() if check_ip(x)]
         if targets:
             if not check_range(targets):
                 logging.debug('Scanning %s IP addresses from list...', '{:,}'.format(len(targets)))
