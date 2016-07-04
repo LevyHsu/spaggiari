@@ -216,7 +216,7 @@ def ip_range(start_ip, end_ip):
     return ip_range
 
 def random_ip():
-    return '%s.%s.%s.%s' % (random_int(0,255), random_int(0,255), random_int(0,255), random_int(0,255))
+    return '%s.%s.%s.%s' % (random_int(1,223), random_int(0,255), random_int(0,255), random_int(0,255))
 
 def random_int(min, max):
     return random.randint(min, max)
