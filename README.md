@@ -7,7 +7,7 @@ A Secure Shell (SSH) scanner / bruteforcer that can be controlled via the Intern
  - [Paramiko Library](http://www.paramiko.org/)
  
 ###### Information
-Spaggiari scanner comes in 2 versions. A CLI version and an IRC version.
+Spaggiari scanner comes in 2 versions, a CLI version and an IRC version.
 
 The CLI version can be used directly from the command line.
 
@@ -21,6 +21,7 @@ You must edit the config in the IRC version in order to have the bot connect.
 | Option | Description |
 | --- | --- |
 | -d | enable deep scanning. |
+| -f | enable fast scanning. |
 | -o \<path> | save output from scan(s) to file. |
 
 
