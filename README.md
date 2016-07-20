@@ -29,7 +29,7 @@ You must edit the config in the IRC version in order to have the bot connect.
 | Scan | Description |
 | --- | --- |
 | -l \<path> | scan a list of ip addresses from file. |
-| -x | scan random ip addresses. |
+| -x | scan random ip addresses. (does not stop) |
 | -r \<class> \<range> | scan a range of ip addresses. |
 | -t \<ip> | scan a target ip address. |
 
