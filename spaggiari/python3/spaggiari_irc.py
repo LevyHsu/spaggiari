@@ -430,16 +430,18 @@ class IRC(object):
                             self.error(chan, 'Invalid arguments.')
                     else:
                         self.error(chan, 'A scan is already running.')
-
+                        
+    def event_nick_in_use(self):
+        self.id       = random_str(5)
+        self.nickname = self.nickname[:-5] + self.id
+        self.nick(self.nickname)
+            
     def handle_events(self, data):
         args = data.split()
         if   args[0] == 'PING' : self.raw('PONG ' + args[1][1:])
         elif args[1] == '001'  : self.event_connect()
-        elif args[1] == '433'  :
-            self.id       = random_str(5)
-            self.nickname = self.nickname[:-5] + self.id
-            self.nick(self.nickname)
-        elif args[1] in ['KICK', 'PRIVMSG']:
+        elif args[1] == '433'  : self.event_nick_in_use()
+        elif args[1] in ('KICK', 'PRIVMSG'):
             name = args[0].split('!')[0][1:]
             if name != self.nickname:
                 if args[1] == 'KICK':
