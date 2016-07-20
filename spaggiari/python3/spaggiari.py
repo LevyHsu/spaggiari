@@ -36,7 +36,7 @@ Usage: spaggiari.py [OPTIONS] [SCAN]
         -o <path>          | Save output from scan(s) to file.
     SCAN
         -l <path>          | Scan a list of ip addresses from file.
-        -x                 | Scan random ip addresses.
+        -x                 | Scan random ip addresses. (does not stop)
         -r <class> <range> | Scan a range of ip addresses.
         -r <class> random  | scan a random range of ip addresses.
         -t <ip>            | scan a target ip address.
@@ -235,7 +235,7 @@ parser.add_argument('-d', action='store_true', dest='deepscan', help='option: en
 parser.add_argument('-f', action='store_true', dest='fastscan', help='option: enable fast scanning.')
 parser.add_argument('-o', dest='output', help='option: save output from scan(s) to file.', metavar='<path>', type=str)
 parser.add_argument('-l', dest='listscan', help='scan a list of ip addresses from file.', metavar='<path>', type=str)
-parser.add_argument('-x', action='store_true', dest='randscan', help='scan random ip addresses.')
+parser.add_argument('-x', action='store_true', dest='randscan', help='scan random ip addresses. (does not stop)')
 parser.add_argument('-r', dest='rangescan', help='scan a range of ip addresses.', metavar=('<class>', '<range>'), nargs=2, type=str)
 parser.add_argument('-t', dest='targetscan', help='scan a target ip address.', metavar='<ip>', type=str)
 args = parser.parse_args()
