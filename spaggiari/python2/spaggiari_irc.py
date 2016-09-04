@@ -214,7 +214,7 @@ def random_int(min, max):
     return random.randint(min, max)
 
 def random_str(size):
-    return ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for _ in range(size))
+    return ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for _ in xrange(size))
 
 
 
