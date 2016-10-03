@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Spaggiari Scanner
 # Developed by acidvegas in Python 3
-# https://github.com/acidvegas/spaggiari/
+# https://github.com/acidvegas/spaggiari
 # spaggiari_irc.py
 
 '''
