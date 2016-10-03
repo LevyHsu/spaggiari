@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # Spaggiari Scanner
-# A Secure Shell (SSH) scanner / bruteforcer that can be controlled via the Internet Relay Chat (IRC) protocol.
-# Developed by acidvegas in Python 2 & 3
+# Developed by acidvegas in Python 3
 # https://github.com/acidvegas/spaggiari/
 # spaggiari_irc.py
 
-"""
+'''
 ISC License
 
 Copyright (c) 2016, acidvegas (https://github.com/acidvegas/)
@@ -21,9 +20,9 @@ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-"""
+'''
 
-"""
+'''
 'sans armes, ni haine, ni violence'
 
 Requirments:
@@ -48,9 +47,8 @@ Examples:
     @range tnnxu c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
     @range tnnxu b random    (Scans the range ?.?.0.0-?.?.255.255)
     @range tnnxu c random    (Scans the range ?.?.?.0-?.?./.255)
-"""
+'''
 
-import datetime
 import getpass
 import os
 import platform
@@ -66,8 +64,9 @@ from collections import OrderedDict
 
 # IRC Config
 server     = 'irc.server.com'
-port       = 6697
-use_ssl    = True
+port       = 6667
+use_ipv6   = False
+use_ssl    = False
 password   = None
 channel    = '#dev'
 key        = None
@@ -122,13 +121,13 @@ def error(msg, reason=None):
     if reason:
         print('%s | [!] - %s (%s)' % (get_time(), msg, str(reason)))
     else:
-        print('%s | [!] - %s'      % (get_time(), msg))
+    	print('%s | [!] - %s' % (get_time(), msg))
 
 def error_exit(msg):
     raise SystemExit('%s | [!] - %s' % (get_time(), msg))
 
 def get_time():
-    return datetime.datetime.now().strftime('%I:%M:%S')
+    return time.strftime('%I:%M:%S')
 
 def get_windows():
     if os.name == 'nt':
@@ -166,8 +165,10 @@ def check_range(targets):
     return found
 
 def color(msg, foreground, background=None):
-    if background : return '%s%s,%s%s%s' % (colour, foreground, background, msg, reset)
-    else          : return '%s%s%s%s'    % (colour, foreground, msg, reset)
+    if background:
+    	return '%s%s,%s%s%s' % (colour, foreground, background, msg, reset)
+    else:
+    	return '%s%s%s%s' % (colour, foreground, msg, reset)
 
 def get_arch():
     return ' '.join(platform.architecture())
@@ -304,16 +305,17 @@ def ssh_connect(hostname, username, password):
 
 # IRC Bot Object
 class IRC(object):
-    def __init__(self, server, port, use_ssl, password, channel, key):
+    def __init__(self, server, port, use_ipv6, use_ssl, password, channel, key):
         self.server    = server
         self.port      = port
+        self.use_ipv6  = use_ipv6
         self.use_ssl   = use_ssl
         self.password  = password
         self.channel   = channel
         self.key       = key
         self.nickname  = 'spag-xxxxx'
         self.id        = 'xxxxx'
-        self.sock      = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock      = None
         self.scanning  = False
         self.stop_scan = False
 
@@ -328,21 +330,33 @@ class IRC(object):
 
     def connect(self):
         try:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            if self.use_ssl: self.sock = ssl.wrap_socket(self.sock)
+            self.create_socket()
             self.sock.connect((self.server, self.port))
-            if self.password : self.raw('PASS ' + self.password)
+            if self.password:
+            	self.raw('PASS ' + self.password)
             self.raw('USER %s 0 * :%s' % (random_str(5), random_str(5)))
             self.nick(self.nickname)
-            self.listen()
         except Exception as ex:
             error('Failed to connect to IRC server.', ex)
             self.event_disconnect()
+        else:
+            self.listen()
+
+    def create_socket(self):
+        if self.use_ipv6:
+            family = socket.AF_INET6
+        else:
+            family = socket.AF_INET
+        self.sock = socket.socket(family, socket.SOCK_STREAM)
+        if self.use_ssl:
+            self.sock = ssl.wrap_socket(self.sock)
 
     def disconnect(self):
-        if self.sock != None:
-            try    : self.sock.shutdown(socket.SHUT_RDWR)
-            except : pass
+        if self.sock:
+            try:
+            	self.sock.shutdown(socket.SHUT_RDWR)
+            except:
+                pass
             self.sock.close()
             self.sock = None
         self.stop_scan = True
@@ -438,9 +452,12 @@ class IRC(object):
             
     def handle_events(self, data):
         args = data.split()
-        if   args[0] == 'PING' : self.raw('PONG ' + args[1][1:])
-        elif args[1] == '001'  : self.event_connect()
-        elif args[1] == '433'  : self.event_nick_in_use()
+        if args[0] == 'PING':
+            self.raw('PONG ' + args[1][1:])
+        elif args[1] == '001': # Use 002 or 003 if you run into issues.
+            self.event_connect() 
+        elif args[1] == '433':
+            self.event_nick_in_use()
         elif args[1] in ('KICK', 'PRIVMSG'):
             name = args[0].split('!')[0][1:]
             if name != self.nickname:
@@ -449,15 +466,17 @@ class IRC(object):
                     kicked = args[3]
                     self.event_kick(name, chan, kicked)
                 elif args[1] == 'PRIVMSG':
-                    host = args[0].split('!')[1].split('@')[1]
                     chan = args[2]
                     msg  = data.split(args[1] + ' ' + chan + ' :')[1]
+                    host = args[0].split('!')[1].split('@')[1]
                     if chan == self.channel:
                         self.event_message(name, host, chan, msg)
 
     def join(self, chan, key=None):
-        if key : self.raw('JOIN %s %s' % (chan, key))
-        else   : self.raw('JOIN ' + chan)
+        if key:
+            self.raw('JOIN %s %s' % (chan, key))
+        else:
+            self.raw('JOIN ' + chan)
 
     def listen(self):
         while True:
@@ -465,12 +484,15 @@ class IRC(object):
                 data = self.sock.recv(1024)
                 for line in data.split(b'\r\n'):
                     if line:
-                        try    : line = line.decode('utf-8')
-                        except : pass
+                        try:
+                            line = line.decode('utf-8')
+                        except:
+                            pass
                         debug(line)
                         if len(line.split()) >= 2:
                             self.handle_events(line)
-                if b'Closing Link' in data and bytes(self.nickname, 'utf-8') in data : break
+                if b'Closing Link' in data and bytes(self.nickname, 'utf-8') in data:
+                    break
             except Exception as ex:
                 error('Unexpected error occured.', ex)
                 break
@@ -482,8 +504,11 @@ class IRC(object):
     def nick(self, nick):
         self.raw('NICK ' + nick)
 
-    def quit(self, msg):
-        self.raw('QUIT :' + msg)
+    def quit(self, msg=None):
+        if msg:
+            self.raw('QUIT :' + msg)
+        else:
+            self.raw('QUIT')
 
     def raw(self, msg):
         self.sock.send(bytes(msg + '\r\n', 'utf-8'))
@@ -493,11 +518,11 @@ class IRC(object):
 
 # Main
 print(''.rjust(56, '#'))
-print('#' + ''.center(54) + '#')
-print('#' + 'Spaggiari Scanner'.center(54) + '#')
-print('#' + 'Developed by acidvegas in Python 2 & 3'.center(54) + '#')
-print('#' + 'https://github.com/acidvegas/spaggiari/'.center(54) + '#')
-print('#' + ''.center(54) + '#')
+print('#%s#' % ''.center(54))
+print('#%s#' % 'Spaggiari Scanner'.center(54))
+print('#%s#' % 'Developed by acidvegas in Python 3'.center(54))
+print('#%s#' % 'https://github.com/acidvegas/spaggiari'.center(54))
+print('#%s#' % ''.center(54))
 print(''.rjust(56, '#'))
 if not sys.version_info.major == 3:
     error_exit('Spaggiari Scanner requires Python version 3 to run!')
@@ -509,5 +534,5 @@ except ImportError:
     error_exit('Failed to import the Paramiko library!')
 else:
     paramiko.util.log_to_file('/dev/null')
-SpaggiariBot = IRC(server, port, use_ssl, password, channel, key)
+SpaggiariBot = IRC(server, port, use_ipv6, use_ssl, password, channel, key)
 SpaggiariBot.start()
