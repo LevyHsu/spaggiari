@@ -158,7 +158,8 @@ def check_port(ip, port):
 def check_range(targets):
     found   = False
     for ip in targets:
-        if found : break
+        if found:
+            break
         for bad_range in spooky + reserved:
             if ip.startswith(bad_range + '.'):
                 found = True
