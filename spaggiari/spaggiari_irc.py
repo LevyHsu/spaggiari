@@ -480,18 +480,13 @@ class IRC(object):
     def listen(self):
         while True:
             try:
-                data = self.sock.recv(1024)
-                for line in data.split(b'\r\n'):
-                    if line:
-                        try:
-                            line = line.decode('utf-8')
-                        except:
-                            pass
-                        debug(line)
-                        if len(line.split()) >= 2:
-                            self.handle_events(line)
-                if b'Closing Link' in data and bytes(self.nickname, 'utf-8') in data:
-                    break
+                data = self.sock.recv(1024).decode('utf-8')
+                for line in (line for line in data.split('\r\n') if line):
+                    debug(line)
+                    if line.startswith('ERROR :Closing Link:') and self.nickname in data:
+                        raise Exception('Connection has closed.')
+                    elif len(line.split()) >= 2:
+                        self.handle_events(line)
             except Exception as ex:
                 error('Unexpected error occured.', ex)
                 break
