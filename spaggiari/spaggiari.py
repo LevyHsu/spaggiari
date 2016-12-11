@@ -290,14 +290,14 @@ elif args.randscan:
 elif args.rangescan:
     if args.rangescan[0] in ('b','c'):
         if args.rangescan[0] == 'b':
-            if args.iprange == 'random':
+            if args.ip_range == 'random':
                 range_prefix = '{0}.{1}'.format(random_int(0,255), random_int(0,255))
             else:
                 range_prefix = args.rangescan[1]
             start = range_prefix + '.0.0'
             end   = range_prefix + '.255.255'
         elif args.rangescan[0] == 'c':
-            if args.iprange == 'random':
+            if args.ip_range == 'random':
                 range_prefix = '{0}.{1}.{2}'.format(random_int(0,255), random_int(0,255), random_int(0,255))
             else:
                 range_prefix = args.rangescan[1]
