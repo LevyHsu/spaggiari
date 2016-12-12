@@ -255,7 +255,7 @@ if args.deepscan:
         sys.exit()
     else:
         combos = combos + deep_combos
-elif args.fastcan:
+elif args.fastscan:
     if args.targetscan:
         logging.critical('Fast scanning can not be enabled with a target scan.')
     combos = {'root':'root', }
